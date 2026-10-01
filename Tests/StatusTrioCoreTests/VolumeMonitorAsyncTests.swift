@@ -334,13 +334,16 @@ final class VolumeMonitorAsyncTests: XCTestCase {
 
     private func makeMonitor(
         reader: DeferredAudioStatusReader,
-        events: AsyncVolumeEvents = AsyncVolumeEvents(),
+        events: AsyncVolumeEvents? = nil,
         controller: RecordingAudioCommands? = nil,
-        sleeper: ManualEventSleeper = ManualEventSleeper(),
-        timeoutSleeper: ManualEventSleeper = ManualEventSleeper(),
+        sleeper: ManualEventSleeper? = nil,
+        timeoutSleeper: ManualEventSleeper? = nil,
         readTimeout: TimeInterval = 5
     ) -> VolumeMonitor {
-        VolumeMonitor(
+        let events = events ?? AsyncVolumeEvents()
+        let sleeper = sleeper ?? ManualEventSleeper()
+        let timeoutSleeper = timeoutSleeper ?? ManualEventSleeper()
+        return VolumeMonitor(
             statusReader: reader,
             eventMonitor: events,
             outputController: controller,

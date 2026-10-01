@@ -36,6 +36,7 @@ final class OutputDeviceListeningModeRowTests: XCTestCase {
     /// button the keyboard and VoiceOver can land on, not ink inside the primary
     /// button.
     func testControllableRowRendersEachModeAsItsOwnButton() async throws {
+        try skipUnlessMacOS13OrNewer("a focus-ring host view per drawn button")
         let row = try await render(
             device: currentAirPodsOutput(),
             listeningMode: BluetoothListeningModePresentation(
@@ -50,6 +51,7 @@ final class OutputDeviceListeningModeRowTests: XCTestCase {
     /// the row must fall back to the ordinary single-button row — no capsule group,
     /// no half control.
     func testSingleModePresentationDrawsNoControl() async throws {
+        try skipUnlessMacOS13OrNewer("a focus-ring host view per drawn button")
         let row = try await render(
             device: currentAirPodsOutput(),
             listeningMode: BluetoothListeningModePresentation(
@@ -64,6 +66,7 @@ final class OutputDeviceListeningModeRowTests: XCTestCase {
     /// (any ordinary or non-current device) is exactly one button. This is the shape
     /// every non-AirPods output keeps.
     func testNilPresentationDrawsNoControl() async throws {
+        try skipUnlessMacOS13OrNewer("a focus-ring host view per drawn button")
         let row = try await render(
             device: currentAirPodsOutput(),
             listeningMode: nil
@@ -81,6 +84,7 @@ final class OutputDeviceListeningModeRowTests: XCTestCase {
     /// that a busy capsule is still a separate button the keyboard and VoiceOver can
     /// land on rather than ink folded into another control.
     func testInFlightCapsuleRemainsItsOwnButton() async throws {
+        try skipUnlessMacOS13OrNewer("a focus-ring host view per drawn button")
         let row = try await render(
             device: currentAirPodsOutput(),
             listeningMode: BluetoothListeningModePresentation(

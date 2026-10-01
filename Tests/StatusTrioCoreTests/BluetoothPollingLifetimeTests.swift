@@ -11,7 +11,7 @@ import XCTest
 final class BluetoothPollingLifetimeTests: XCTestCase {
     private func makeController(
         reader: any BluetoothPairedDeviceReading,
-        stateMonitor: AvailableBluetoothStateMonitor = AvailableBluetoothStateMonitor(),
+        stateMonitor: AvailableBluetoothStateMonitor? = nil,
         connectionEvents: (any BluetoothConnectionEventMonitoring)? = nil,
         safetyNetSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
             try await Task.sleep(seconds: $0)
@@ -22,7 +22,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
     ) -> BluetoothDeviceController {
         BluetoothDeviceController(
             worker: reader,
-            stateMonitor: stateMonitor,
+            stateMonitor: stateMonitor ?? AvailableBluetoothStateMonitor(),
             batteryReader: SilentBluetoothBatteryReader(),
             notificationCenter: NotificationCenter(),
             workspaceNotificationCenter: NotificationCenter(),

@@ -8,7 +8,9 @@ final class WiFiSummaryTests: XCTestCase {
     func testKnownFrequencyBandsAndUnknownChannel() {
         XCTAssertEqual(WiFiFrequencyBand(coreWLANBand: .band2GHz), .twoPointFourGHz)
         XCTAssertEqual(WiFiFrequencyBand(coreWLANBand: .band5GHz), .fiveGHz)
-        XCTAssertEqual(WiFiFrequencyBand(coreWLANBand: .band6GHz), .sixGHz)
+        // `CWChannelBand.band6GHz` is newer than this SDK, so the mapping from a
+        // CoreWLAN band to `.sixGHz` cannot be reached here.
+        XCTAssertEqual(WiFiFrequencyBand.sixGHz.gigahertz, 6)
         XCTAssertNil(WiFiFrequencyBand(coreWLANBand: .bandUnknown))
     }
 

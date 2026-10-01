@@ -1461,7 +1461,7 @@ final class WiFiClassifierTests: XCTestCase {
         reader: FakeWiFiSystemReader = FakeWiFiSystemReader(result: nil),
         statusReader: (any WiFiStatusReadingProviding)? = nil,
         sharingDetector: FakeInternetSharingDetector = FakeInternetSharingDetector(result: false),
-        nameAuthorizer: FakeWiFiNameAuthorizer = FakeWiFiNameAuthorizer(),
+        nameAuthorizer: FakeWiFiNameAuthorizer? = nil,
         eventMonitor: FakeWiFiEventMonitor = FakeWiFiEventMonitor(),
         pathMonitor: FakeWiFiPathMonitor = FakeWiFiPathMonitor(),
         staleInterval: TimeInterval = 30,
@@ -1478,7 +1478,7 @@ final class WiFiClassifierTests: XCTestCase {
     ) -> WiFiMonitor {
         WiFiMonitor(
             statusReader: statusReader ?? InlineWiFiStatusReader(reader: reader, sharingDetector: sharingDetector),
-            nameAuthorizer: nameAuthorizer,
+            nameAuthorizer: nameAuthorizer ?? FakeWiFiNameAuthorizer(),
             eventMonitor: eventMonitor,
             pathMonitor: pathMonitor,
             staleInterval: staleInterval,

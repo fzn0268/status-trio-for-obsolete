@@ -95,10 +95,11 @@ final class IconRenderCoalescerTests: XCTestCase {
     }
 
     private func makeCoalescer(
-        sleeper: ManualEventSleeper = ManualEventSleeper(),
+        sleeper: ManualEventSleeper? = nil,
         now: @escaping () -> Date = { Date() }
     ) -> IconRenderCoalescer {
-        IconRenderCoalescer(
+        let sleeper = sleeper ?? ManualEventSleeper()
+        return IconRenderCoalescer(
             minimumInterval: 0.05,
             now: now,
             sleep: { await sleeper.sleep($0) }

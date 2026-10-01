@@ -28,13 +28,15 @@ final class LocalizationParityTests: XCTestCase {
         }
     }
 
-    private static var pairPattern: Regex<(Substring, Substring, Substring)> {
-        /^"((?:[^"\\]|\\.)+)"\s*=\s*"((?:[^"\\]|\\.)*)";\s*$/
-    }
+    // `Regex` is macOS 13 only, so the shipped translations are checked with the
+    // older `NSRegularExpression` API the test toolchain can compile.
+    private static let pairPattern = try! NSRegularExpression(
+        pattern: "^\"((?:[^\"\\\\]|\\\\.)+)\"\\s*=\\s*\"((?:[^\"\\\\]|\\\\.)*)\";\\s*$"
+    )
 
-    private static var placeholderPattern: Regex<Substring> {
-        /%[@dfs]|%%/
-    }
+    private static let placeholderPattern = try! NSRegularExpression(
+        pattern: "%[@dfs]|%%"
+    )
 
     // MARK: - Tests
 
@@ -132,7 +134,10 @@ final class LocalizationParityTests: XCTestCase {
                 continue
             }
 
-            guard let match = line.wholeMatch(of: Self.pairPattern) else {
+            let fullRange = NSRange(line.startIndex..<line.endIndex, in: line)
+            guard let match = Self.pairPattern.firstMatch(in: line, range: fullRange),
+                  let keyRange = Range(match.range(at: 1), in: line),
+                  let valueRange = Range(match.range(at: 2), in: line) else {
                 throw LocalizationError.unparsableLine(
                     language: language.rawValue,
                     line: index + 1,
@@ -140,19 +145,22 @@ final class LocalizationParityTests: XCTestCase {
                 )
             }
 
-            let key = String(match.output.1)
+            let key = String(line[keyRange])
             guard seen.insert(key).inserted else {
                 throw LocalizationError.duplicatedKey(language: language.rawValue, key: key)
             }
 
-            result.append(Entry(key: key, value: String(match.output.2), line: index + 1))
+            result.append(Entry(key: key, value: String(line[valueRange]), line: index + 1))
         }
 
         return result
     }
 
     private func placeholders(in value: String) -> [String] {
-        value.matches(of: Self.placeholderPattern).map { String(value[$0.range]) }.sorted()
+        let range = NSRange(value.startIndex..<value.endIndex, in: value)
+        return Self.placeholderPattern.matches(in: value, range: range).compactMap {
+            Range($0.range, in: value).map { String(value[$0]) }
+        }.sorted()
     }
 
     private static var resourcesDirectory: URL {

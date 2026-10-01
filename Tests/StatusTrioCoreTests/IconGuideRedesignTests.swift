@@ -274,7 +274,10 @@ final class IconGuideRedesignTests: XCTestCase {
         XCTAssertNotNil(hostingView.subviews)
     }
 
-    func testOnboardingHeightStaysEqualAcrossPages() {
+    func testOnboardingHeightStaysEqualAcrossPages() throws {
+        // `NSHostingController.sizingOptions` is macOS 13, so this branch's
+        // macOS 12 runtime cannot measure the preferred content size at all.
+        try skipUnlessMacOS13OrNewer("NSHostingController.sizingOptions")
         let name = "IconGuideRedesignTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: name)!
         defer { defaults.removeTestSuite(named: name) }
@@ -295,7 +298,9 @@ final class IconGuideRedesignTests: XCTestCase {
             .environmentObject(localization)
 
             let hostingController = NSHostingController(rootView: view)
-            hostingController.sizingOptions = [.preferredContentSize]
+            if #available(macOS 13.0, *) {
+                hostingController.sizingOptions = [.preferredContentSize]
+            }
             hostingController.view.frame = NSRect(
                 x: 0,
                 y: 0,

@@ -5,7 +5,8 @@ import XCTest
 
 @MainActor
 final class SettingsRowHitAreaTests: XCTestCase {
-    func testPopupSettingsButtonUsesFullRowHitArea() {
+    func testPopupSettingsButtonUsesFullRowHitArea() throws {
+        try skipUnlessFullWidthKeyViewProxy()
         let localization = makeLocalization()
         let settings = makeSettings()
         let store = SystemStatusStore(
@@ -42,7 +43,8 @@ final class SettingsRowHitAreaTests: XCTestCase {
         )
     }
 
-    func testPreferenceCheckboxRowUsesFullRowHitArea() {
+    func testPreferenceCheckboxRowUsesFullRowHitArea() throws {
+        try skipUnlessFullWidthKeyViewProxy()
         let localization = makeLocalization()
         let view = PreferenceCheckboxRow(
             label: .settingsBatteryShowPercentage,
@@ -61,7 +63,8 @@ final class SettingsRowHitAreaTests: XCTestCase {
         )
     }
 
-    func testDisclosureRowUsesFullRowHitArea() {
+    func testDisclosureRowUsesFullRowHitArea() throws {
+        try skipUnlessFullWidthKeyViewProxy()
         let localization = makeLocalization()
         let view = SettingsDisclosureRow(
             "cable.connector",
@@ -84,7 +87,8 @@ final class SettingsRowHitAreaTests: XCTestCase {
         )
     }
 
-    func testWiFiDetailsToggleUsesFullRowHitArea() {
+    func testWiFiDetailsToggleUsesFullRowHitArea() throws {
+        try skipUnlessFullWidthKeyViewProxy()
         let localization = makeLocalization()
         let view = WiFiDetailsToggleRow(isExpanded: .constant(false))
             .environmentObject(localization)
@@ -101,7 +105,8 @@ final class SettingsRowHitAreaTests: XCTestCase {
         )
     }
 
-    func testNavigationBackRowUsesFullHeaderHitArea() {
+    func testNavigationBackRowUsesFullHeaderHitArea() throws {
+        try skipUnlessFullWidthKeyViewProxy()
         let view = NavigationBackRow(
             accessibilityLabel: "Back",
             title: "Wi-Fi",

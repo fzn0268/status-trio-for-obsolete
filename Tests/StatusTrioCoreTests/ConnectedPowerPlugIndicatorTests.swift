@@ -36,6 +36,7 @@ final class ConnectedPowerPlugIndicatorTests: XCTestCase {
     }
 
     func testPlugGlyphIsNarrowerThanTheBolt() throws {
+        try skipUnlessMacOS13OrNewer("the portrait plug glyph's metrics")
         let plug = try XCTUnwrap(topGapInk(in: try menuBarPixels(for: connectedBattery())))
         let bolt = try XCTUnwrap(topGapInk(in: try menuBarPixels(for: chargingBattery())))
 
@@ -68,6 +69,7 @@ final class ConnectedPowerPlugIndicatorTests: XCTestCase {
     }
 
     func testPlugGlyphStaysInsideTheTopGap() throws {
+        try skipUnlessMacOS13OrNewer("the portrait plug glyph's metrics")
         let plug = try XCTUnwrap(topGapInk(in: try menuBarPixels(for: connectedBattery())))
 
         XCTAssertGreaterThan(plug.minY, 0, "the plug must not clip at the top of the bitmap")

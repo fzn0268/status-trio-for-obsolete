@@ -674,6 +674,7 @@ final class StatusIconRendererTests: XCTestCase {
     }
 
     func testConnectedNonzeroSignalAlphaSumIncreasesWithBars() throws {
+        try skipUnlessMacOS13OrNewer("the graded fill of the wifi symbol")
         let rssiValues: [Int?] = [-85, -75, -55]
         let signalRegion = CGRect(x: 35, y: 43, width: 50, height: 43)
         var alphaSums: [Int] = []

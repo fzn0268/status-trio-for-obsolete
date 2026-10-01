@@ -3,15 +3,6 @@ import Foundation
 import Testing
 @testable import StatusTrioCore
 
-/// Records the ticks a player asked for, so the gate and the coalescing can be
-/// asserted without making a sound.
-@MainActor
-final class FakeVolumeFeedbackPlayer: VolumeFeedbackPlaying {
-    private(set) var playCount = 0
-
-    func playVolumeChangeFeedback() { playCount += 1 }
-}
-
 /// A clock the test moves by hand.
 private final class MutableClock {
     var now: TimeInterval = 0

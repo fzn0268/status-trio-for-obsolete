@@ -942,9 +942,10 @@ final class VolumeMonitorTests: XCTestCase {
 
     private func makeMonitor(
         reader: FakeVolumeReader,
-        eventMonitor: FakeVolumeEventMonitor = FakeVolumeEventMonitor()
+        eventMonitor: FakeVolumeEventMonitor? = nil
     ) -> VolumeMonitor {
-        VolumeMonitor(statusReader: InlineAudioStatusReader(reader: reader), eventMonitor: eventMonitor)
+        VolumeMonitor(statusReader: InlineAudioStatusReader(reader: reader),
+                      eventMonitor: eventMonitor ?? FakeVolumeEventMonitor())
     }
 }
 

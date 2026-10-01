@@ -19,6 +19,7 @@ import XCTest
 @MainActor
 final class BluetoothDeviceRowLayoutTests: XCTestCase {
     func testTheConfirmingRowStaysOnOneLine() async throws {
+        try skipUnlessMacOS13OrNewer("a focus-ring host view per drawn button")
         let device = BluetoothDevice(
             id: "AA:00:00:00:00:01",
             name: "EDIFIER LolliPods 2022版",
@@ -262,6 +263,7 @@ final class BluetoothDeviceRowLayoutTests: XCTestCase {
     /// device: the row collapses to the same single-line confirmation height an
     /// ordinary device produces, and it still renders both Disconnect and Cancel.
     func testTheConfirmationCollapsesAComponentRowToOneLine() async throws {
+        try skipUnlessMacOS13OrNewer("a focus-ring host view per drawn button")
         let device = rowDevice(name: "AirPods Pro")
 
         let ordinaryConfirmation = try await renderRow(

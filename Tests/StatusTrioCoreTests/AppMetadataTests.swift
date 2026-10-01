@@ -53,7 +53,8 @@ final class AppMetadataTests: XCTestCase {
         )
     }
 
-    func testGitHubMarkLoadsFromResourceBundle() {
+    func testGitHubMarkLoadsFromResourceBundle() throws {
+        try skipUnlessMacOS13OrNewer("SVG support in NSImage")
         XCTAssertNotNil(AboutIcon.githubMark)
     }
 }
