@@ -31,6 +31,9 @@ final class LaunchAtLoginManagerTests: XCTestCase {
     func testSystemNotFoundIsTreatedAsNotRegistered() {
         // macOS answers `notFound` for an app that has never registered a login
         // item. Treating that as a failure greyed out the toggle on first run.
+        // The mapping is typed on `SMAppService.Status`, so it only exists where
+        // that API does.
+        guard #available(macOS 13.0, *) else { return }
         XCTAssertEqual(SystemLaunchAtLoginService.status(for: .notFound), .notRegistered)
         XCTAssertEqual(SystemLaunchAtLoginService.status(for: .notRegistered), .notRegistered)
         XCTAssertEqual(SystemLaunchAtLoginService.status(for: .enabled), .enabled)

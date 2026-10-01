@@ -48,6 +48,7 @@ final class SystemLaunchAtLoginService: LaunchAtLoginServicing {
     /// `SMAppService` answers `notFound` for an app that has never registered a
     /// login item, which is the same situation as `notRegistered` for our UI.
     /// Registering still works from that state, so it must not disable the toggle.
+    @available(macOS 13.0, *)
     static func status(for status: SMAppService.Status) -> LaunchAtLoginStatus {
         switch status {
         case .enabled:

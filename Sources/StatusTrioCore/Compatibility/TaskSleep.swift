@@ -8,7 +8,11 @@ import Foundation
 ///
 /// The pre-Tahoe timer API has no tolerance parameter, so the sleeps that ask
 /// for one on main simply sleep for the interval and leave coalescing to the OS.
-extension Task where Failure == Never {
+///
+/// The constraint matches `Task.sleep(nanoseconds:)` itself, which is only
+/// declared for `Task<Never, Never>`; a `where Failure == Never` extension could
+/// not reach it.
+extension Task where Success == Never, Failure == Never {
     static func sleep(seconds: TimeInterval) async throws {
         try await sleep(nanoseconds: UInt64(max(0, seconds) * 1_000_000_000))
     }
