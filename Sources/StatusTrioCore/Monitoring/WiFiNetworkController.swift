@@ -244,8 +244,8 @@ final class WiFiNetworkController: ObservableObject {
     /// A full scan sweeps every channel, so the automatic path may not run one
     /// more often than this. Explicit user actions bypass it.
     private let minimumScanInterval: TimeInterval
-    private let periodicRefreshInterval: Duration
-    private let periodicRefreshSleep: @Sendable (Duration) async throws -> Void
+    private let periodicRefreshInterval: TimeInterval
+    private let periodicRefreshSleep: @Sendable (TimeInterval) async throws -> Void
     private var scanGate = AsyncRequestGate()
     private(set) var isActive = false
     /// When the last scan started, which is what the interval is measured from.
@@ -257,9 +257,9 @@ final class WiFiNetworkController: ObservableObject {
         scanWorker: any WiFiNetworkScanning = CoreWLANNetworkWorker(),
         now: @escaping () -> Date = Date.init,
         minimumScanInterval: TimeInterval = 30,
-        periodicRefreshInterval: Duration = .seconds(30),
-        periodicRefreshSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        periodicRefreshInterval: TimeInterval = 30,
+        periodicRefreshSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) {
         self.worker = scanWorker

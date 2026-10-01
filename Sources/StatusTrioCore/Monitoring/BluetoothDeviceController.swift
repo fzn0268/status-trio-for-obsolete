@@ -365,8 +365,8 @@ final class BluetoothDeviceController: ObservableObject {
     /// How often the safety net re-reads the paired-device database while a
     /// Bluetooth surface is visible. Connection notifications deliver the
     /// interesting changes, so this is deliberately slow.
-    private let safetyNetInterval: Duration
-    private let safetyNetSleep: @Sendable (Duration) async throws -> Void
+    private let safetyNetInterval: TimeInterval
+    private let safetyNetSleep: @Sendable (TimeInterval) async throws -> Void
     /// The connect/disconnect source for the safety net. Optional so a test can
     /// build a controller that never touches the system's Bluetooth service.
     /// Teardown-owned storage: `deinit` is nonisolated and reads it directly.
@@ -376,14 +376,14 @@ final class BluetoothDeviceController: ObservableObject {
     /// teardown-owned storage for the same reason the connect source is:
     /// `deinit` is nonisolated and reads it directly.
     nonisolated(unsafe) private let accessoryBatteryEvents: (any BluetoothAccessoryBatteryEventMonitoring)?
-    private let connectionEventDebounceInterval: Duration
-    private let connectionEventDebounceSleep: @Sendable (Duration) async throws -> Void
+    private let connectionEventDebounceInterval: TimeInterval
+    private let connectionEventDebounceSleep: @Sendable (TimeInterval) async throws -> Void
     /// The accessory battery debounce. It is longer than the connect/disconnect
     /// one on purpose: the power manager posts an accessory notification fairly
     /// often while that accessory discharges, and the safety-net poll still runs
     /// behind this as the source that catches whatever no notification delivered.
-    private let accessoryBatteryEventDebounceInterval: Duration
-    private let accessoryBatteryEventDebounceSleep: @Sendable (Duration) async throws -> Void
+    private let accessoryBatteryEventDebounceInterval: TimeInterval
+    private let accessoryBatteryEventDebounceSleep: @Sendable (TimeInterval) async throws -> Void
     /// Invalidates a debounce that a later stop or deactivate superseded, the
     /// same way `AsyncRequestGate` guards the other asynchronous paths here.
     private var connectionEventGate = AsyncRequestGate()
@@ -446,10 +446,10 @@ final class BluetoothDeviceController: ObservableObject {
     @Published private(set) var pendingDisconnectConfirmation: String?
 
     private let actionPerformer: any BluetoothDeviceActionPerforming
-    private let actionTimeout: Duration
-    private let actionTimeoutSleep: @Sendable (Duration) async throws -> Void
-    private let failureVisibleDuration: Duration
-    private let failureVisibleSleep: @Sendable (Duration) async throws -> Void
+    private let actionTimeout: TimeInterval
+    private let actionTimeoutSleep: @Sendable (TimeInterval) async throws -> Void
+    private let failureVisibleDuration: TimeInterval
+    private let failureVisibleSleep: @Sendable (TimeInterval) async throws -> Void
     private var actionTimeouts: [String: Task<Void, Never>] = [:]
     private var failureClearTasks: [String: Task<Void, Never>] = [:]
     /// Identifies the current request per device. A late completion from a
@@ -468,33 +468,33 @@ final class BluetoothDeviceController: ObservableObject {
         accessoryBatteryReader: (any BluetoothAccessoryBatteryReading)? = nil,
         notificationCenter: NotificationCenter = .default,
         workspaceNotificationCenter: NotificationCenter = NSWorkspace.shared.notificationCenter,
-        safetyNetInterval: Duration = .seconds(30),
-        safetyNetSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        safetyNetInterval: TimeInterval = 30,
+        safetyNetSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
         systemObservers: SystemEventObserverBag? = nil,
         connectionEvents: (any BluetoothConnectionEventMonitoring)? = nil,
         accessoryBatteryEvents: (any BluetoothAccessoryBatteryEventMonitoring)? = nil,
-        connectionEventDebounceInterval: Duration = .milliseconds(750),
-        connectionEventDebounceSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        connectionEventDebounceInterval: TimeInterval = 0.75,
+        connectionEventDebounceSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
-        accessoryBatteryEventDebounceInterval: Duration = .seconds(3),
-        accessoryBatteryEventDebounceSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        accessoryBatteryEventDebounceInterval: TimeInterval = 3,
+        accessoryBatteryEventDebounceSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
-        readTimeout: Duration = .seconds(5),
-        readTimeoutSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        readTimeout: TimeInterval = 5,
+        readTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
         actionPerformer: any BluetoothDeviceActionPerforming = IOBluetoothDeviceActionPerformer(),
-        actionTimeout: Duration = .seconds(10),
-        actionTimeoutSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        actionTimeout: TimeInterval = 10,
+        actionTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
-        failureVisibleDuration: Duration = .seconds(4),
-        failureVisibleSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        failureVisibleDuration: TimeInterval = 4,
+        failureVisibleSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
         nearbyBatteryScanner: (any BluetoothLEBatteryScanning)? = nil,
         nearbyBatteryCacheLifetime: TimeInterval = BluetoothLEBatteryScanPolicy.resultLifetime
@@ -524,7 +524,7 @@ final class BluetoothDeviceController: ObservableObject {
         self.accessoryBatteryEventDebounceSleep = accessoryBatteryEventDebounceSleep
         readWatchdog = ReadWatchdog(
             baseTimeout: readTimeout,
-            maxTimeout: .seconds(60),
+            maxTimeout: 60,
             sleep: readTimeoutSleep
         )
         self.actionPerformer = actionPerformer
@@ -1071,10 +1071,9 @@ final class BluetoothDeviceController: ObservableObject {
         let generation = nearbyBatteryCacheGeneration
         let expiry = oldestUpdate.addingTimeInterval(nearbyBatteryCacheLifetime)
         let delay = max(0, expiry.timeIntervalSinceNow)
-        let sleepDuration = Duration.milliseconds(Int64((delay * 1_000).rounded(.up)))
         nearbyBatteryCacheExpirationTask = Task { @MainActor [weak self] in
             do {
-                try await Task.sleep(for: sleepDuration)
+                try await Task.sleep(seconds: delay)
             } catch {
                 return
             }

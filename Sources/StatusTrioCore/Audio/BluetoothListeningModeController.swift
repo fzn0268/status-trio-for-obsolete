@@ -25,12 +25,12 @@ final class BluetoothListeningModeController: ObservableObject {
 
     private let hal: BluetoothListeningModeHAL
     private let endpointProvider: any CoreAudioBluetoothEndpointProviding
-    private let failureClearDelay: Duration
+    private let failureClearDelay: TimeInterval
     /// How long a preview write shows its spinner before settling. Real writes
     /// settle when the read-back confirms, which is CoreAudio-bound; preview
     /// writes settle on a fixed delay so the busy state is visible without
     /// waiting on anything.
-    private let previewSettleDelay: Duration
+    private let previewSettleDelay: TimeInterval
 
     /// Interface-preview mode. When true, `refresh` publishes a synthetic
     /// three-capsule presentation for every connected AirPods without consulting
@@ -115,8 +115,8 @@ final class BluetoothListeningModeController: ObservableObject {
         hal: BluetoothListeningModeHAL = BluetoothListeningModeHAL(),
         endpointProvider: any CoreAudioBluetoothEndpointProviding = CoreAudioBluetoothListeningModeEndpointProvider(),
         listenerBackend: any BluetoothListeningModePropertyListening = CoreAudioBluetoothListeningModeListenerBackend(),
-        failureClearDelay: Duration = .seconds(2),
-        previewSettleDelay: Duration = .milliseconds(400)
+        failureClearDelay: TimeInterval = 2,
+        previewSettleDelay: TimeInterval = 0.4
     ) {
         self.hal = hal
         self.endpointProvider = endpointProvider
@@ -320,7 +320,7 @@ final class BluetoothListeningModeController: ObservableObject {
         changeTasks[address]?.cancel()
 
         changeTasks[address] = Task { [weak self, delay = self.previewSettleDelay] in
-            try? await Task.sleep(for: delay)
+            try? await Task.sleep(seconds: delay)
             guard let self, !Task.isCancelled, self.generations[address] == generation else { return }
             self.previewSelectedModes[address] = mode
             self.presentations[address] = presentation.settled(on: mode)
@@ -463,7 +463,7 @@ final class BluetoothListeningModeController: ObservableObject {
 
         failureClearTasks[address]?.cancel()
         failureClearTasks[address] = Task { [weak self, delay = self.failureClearDelay] in
-            try? await Task.sleep(for: delay)
+            try? await Task.sleep(seconds: delay)
             guard let self, !Task.isCancelled, self.generations[address] == generation,
                   case .failed = self.presentations[address]?.actionState else { return }
             self.presentations[address] = self.presentations[address]?.settledAfterFailure() ?? failed

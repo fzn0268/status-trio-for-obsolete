@@ -110,10 +110,10 @@ final class AudioInputMonitor: AudioInputMonitoring {
   private let worker: AudioInputWorker
   private let visibilityGate = AudioInputVisibilityGate()
   private var sessionGate: AudioInputSessionGate?
-  private let commandTimeout: Duration
-  private let usagePollInterval: Duration
-  private let sleep: @Sendable (Duration) async throws -> Void
-  private let usageSleep: @Sendable (Duration) async throws -> Void
+  private let commandTimeout: TimeInterval
+  private let usagePollInterval: TimeInterval
+  private let sleep: @Sendable (TimeInterval) async throws -> Void
+  private let usageSleep: @Sendable (TimeInterval) async throws -> Void
 
   private var status = AudioInputStatus.empty
   private var isEnabled = false
@@ -141,13 +141,13 @@ final class AudioInputMonitor: AudioInputMonitoring {
 
   init(
     hardware: any AudioInputHardware = CoreAudioInputHardware(),
-    commandTimeout: Duration = .seconds(2),
-    usagePollInterval: Duration = .seconds(1),
-    usageSleep: @escaping @Sendable (Duration) async throws -> Void = { duration in
-      try await Task.sleep(for: duration)
+    commandTimeout: TimeInterval = 2,
+    usagePollInterval: TimeInterval = 1,
+    usageSleep: @escaping @Sendable (TimeInterval) async throws -> Void = { duration in
+      try await Task.sleep(seconds: duration)
     },
-    sleep: @escaping @Sendable (Duration) async throws -> Void = { duration in
-      try await Task.sleep(for: duration)
+    sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { duration in
+      try await Task.sleep(seconds: duration)
     }
   ) {
     let (updates, continuation) = AsyncStream.makeStream(
@@ -281,7 +281,7 @@ final class AudioInputMonitor: AudioInputMonitoring {
     scalarDebounceTask = Task { [weak self] in
       guard let self else { return }
       do {
-        try await self.sleep(.milliseconds(80))
+        try await self.sleep(0.08)
       } catch {
         return
       }
@@ -758,7 +758,7 @@ final class AudioInputMonitor: AudioInputMonitoring {
     errorExpiryTask = Task { [weak self] in
       guard let self else { return }
       do {
-        try await self.sleep(.seconds(4))
+        try await self.sleep(4)
       } catch {
         return
       }

@@ -830,8 +830,8 @@ final class VolumeMonitor: VolumeMonitoring, VolumeControlling {
     private lazy var ddcCoordinator = suppliedDDCCoordinator ?? DDCVolumeCoordinator(transport: ddcTransport) { [weak self] update in
         self?.receiveDDCUpdate(update)
     }
-    private let refreshDebounceInterval: Duration
-    private let refreshDebounceSleep: @Sendable (Duration) async throws -> Void
+    private let refreshDebounceInterval: TimeInterval
+    private let refreshDebounceSleep: @Sendable (TimeInterval) async throws -> Void
     private var scheduledRefreshTask: Task<Void, Never>?
     private var scheduledRefreshIncludesOutputDevices = false
     private var cachedOutputDevices: [AudioOutputDevice] = []
@@ -858,13 +858,13 @@ final class VolumeMonitor: VolumeMonitoring, VolumeControlling {
         outputController: (any AudioOutputControlling)? = nil,
         ddcTransport: any DDCVolumeTransport = DDCDisplayTransport(),
         ddcCoordinator: DDCVolumeCoordinator? = nil,
-        refreshDebounceInterval: Duration = .milliseconds(150),
-        refreshDebounceSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        refreshDebounceInterval: TimeInterval = 0.15,
+        refreshDebounceSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
-        readTimeout: Duration = .seconds(5),
-        readTimeoutSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        readTimeout: TimeInterval = 5,
+        readTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) {
         self.statusReader = statusReader
@@ -877,7 +877,7 @@ final class VolumeMonitor: VolumeMonitoring, VolumeControlling {
         self.refreshDebounceSleep = refreshDebounceSleep
         readWatchdog = ReadWatchdog(
             baseTimeout: readTimeout,
-            maxTimeout: .seconds(60),
+            maxTimeout: 60,
             sleep: readTimeoutSleep
         )
         (updates, continuation) = MonitorStream.make(of: VolumeStatus.self)

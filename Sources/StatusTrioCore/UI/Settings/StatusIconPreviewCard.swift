@@ -46,7 +46,7 @@ struct StatusIconPreviewCard: View {
             let elapsed = Date().timeIntervalSince(startedAt)
             let remaining = max(0, ChargingEffectPreviewPlayback.duration - elapsed)
             if remaining > 0 {
-                try? await Task.sleep(for: .seconds(remaining))
+                try? await Task.sleep(seconds: remaining)
             }
             guard !Task.isCancelled else { return }
             previewPlayback.stop()

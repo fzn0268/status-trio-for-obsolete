@@ -313,8 +313,8 @@ final class WiFiMonitor: NSObject, WiFiMonitoring, CWEventDelegate {
     private let pathQueue = DispatchQueue(label: "StatusTrio.WiFiPath")
     private let staleInterval: TimeInterval
     private let now: () -> Date
-    private let refreshDebounceInterval: Duration
-    private let refreshDebounceSleep: @Sendable (Duration) async throws -> Void
+    private let refreshDebounceInterval: TimeInterval
+    private let refreshDebounceSleep: @Sendable (TimeInterval) async throws -> Void
     private var scheduledRefreshTask: Task<Void, Never>?
     private var detailsVisible = true
     private var readInFlight = false
@@ -346,14 +346,14 @@ final class WiFiMonitor: NSObject, WiFiMonitoring, CWEventDelegate {
         staleInterval: TimeInterval = 30,
         initialPath: WiFiPathSnapshot? = nil,
         now: @escaping () -> Date = Date.init,
-        refreshDebounceInterval: Duration = .milliseconds(150),
-        refreshDebounceSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        refreshDebounceInterval: TimeInterval = 0.15,
+        refreshDebounceSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
         noInterfaceRecoveryLimit: Int = 3,
-        readTimeout: Duration = .seconds(5),
-        readTimeoutSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        readTimeout: TimeInterval = 5,
+        readTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) {
         self.statusReader = statusReader
@@ -368,7 +368,7 @@ final class WiFiMonitor: NSObject, WiFiMonitoring, CWEventDelegate {
         self.noInterfaceRecoveryLimit = noInterfaceRecoveryLimit
         readWatchdog = ReadWatchdog(
             baseTimeout: readTimeout,
-            maxTimeout: .seconds(60),
+            maxTimeout: 60,
             sleep: readTimeoutSleep
         )
         (updates, continuation) = MonitorStream.make(of: WiFiStatus.self)

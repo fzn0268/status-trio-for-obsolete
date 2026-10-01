@@ -16,7 +16,7 @@ final class IconRenderCoalescer {
 
     private let minimumInterval: TimeInterval
     private let now: () -> Date
-    private let sleep: @Sendable (Duration) async throws -> Void
+    private let sleep: @Sendable (TimeInterval) async throws -> Void
 
     private var lastRunDate: Date?
     private var pendingRender: (() -> Void)?
@@ -25,8 +25,8 @@ final class IconRenderCoalescer {
     init(
         minimumInterval: TimeInterval = IconRenderCoalescer.defaultMinimumInterval,
         now: @escaping () -> Date = { Date() },
-        sleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        sleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) {
         self.minimumInterval = minimumInterval
@@ -54,7 +54,7 @@ final class IconRenderCoalescer {
         let sleep = self.sleep
         pendingTask = Task { @MainActor [weak self] in
             do {
-                try await sleep(.seconds(delay))
+                try await sleep(delay)
             } catch {
                 return
             }

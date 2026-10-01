@@ -59,7 +59,7 @@ struct BatteryDetailsView: View {
                 }
                 if !battery.isConnectedToPower {
                     row(.batteryDetailsRemaining, details.remainingMinutes.map {
-                        Duration.seconds($0 * 60).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated).locale(localization.resolvedLanguage.locale))
+                        Self.remainingTimeText(minutes: $0, locale: localization.resolvedLanguage.locale)
                     } ?? localization.string(.batteryDetailsUnavailable))
                 }
                 if let count = details.cycleCount {
@@ -85,5 +85,16 @@ struct BatteryDetailsView: View {
             Text(value).multilineTextAlignment(.trailing).foregroundStyle(tint ?? .primary)
         }
         .accessibilityElement(children: .combine)
+    }
+
+    /// `Duration.formatted(.units(...))` is macOS 13+, so the remaining-time row
+    /// goes through `DateComponentsFormatter`, which renders the same
+    /// abbreviated "1h 30m" on every release the app supports.
+    private static func remainingTimeText(minutes: Int, locale: Locale) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        formatter.locale = locale
+        return formatter.string(from: TimeInterval(minutes * 60)) ?? ""
     }
 }

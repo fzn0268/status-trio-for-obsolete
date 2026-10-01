@@ -111,7 +111,7 @@ final class AppEnvironment {
         vpnMonitor: (any VPNMonitoring)? = nil,
         volumeMonitor: any VolumeMonitoring,
         inputMonitor: (any AudioInputMonitoring)? = nil,
-        refreshInterval: Duration = .seconds(15)
+        refreshInterval: TimeInterval = 15
     ) -> SystemStatusStore {
         SystemStatusStore(
             batteryMonitor: batteryMonitor,

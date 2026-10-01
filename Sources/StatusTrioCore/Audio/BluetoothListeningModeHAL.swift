@@ -46,13 +46,13 @@ protocol BluetoothListeningModePropertyReading: Sendable {
 /// Production sleeps on the clock; a test supplies an immediate sleeper so the
 /// sixteen-attempt budget runs without actually costing eight hundred milliseconds.
 protocol BluetoothListeningModeSleeping: Sendable {
-    func sleep(for duration: Duration) async
+    func sleep(for duration: TimeInterval) async
 }
 
 /// The production sleeper, delegating to structured concurrency.
 struct ClockBluetoothListeningModeSleeper: BluetoothListeningModeSleeping {
-    func sleep(for duration: Duration) async {
-        try? await Task.sleep(for: duration)
+    func sleep(for duration: TimeInterval) async {
+        try? await Task.sleep(seconds: duration)
     }
 }
 
@@ -144,13 +144,13 @@ struct BluetoothListeningModeHAL {
     /// confirms, so a write is trusted only once `lstm` settles on the target —
     /// polled at `retryDelay` for at most `retryAttempts` times.
     let retryAttempts: Int
-    let retryDelay: Duration
+    let retryDelay: TimeInterval
 
     init(
         backend: any BluetoothListeningModePropertyReading = CoreAudioBluetoothListeningModeBackend(),
         sleeper: any BluetoothListeningModeSleeping = ClockBluetoothListeningModeSleeper(),
         retryAttempts: Int = 16,
-        retryDelay: Duration = .milliseconds(50)
+        retryDelay: TimeInterval = 0.05
     ) {
         self.backend = backend
         self.sleeper = sleeper

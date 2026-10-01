@@ -12,13 +12,13 @@ struct DDCVolumeUpdate: Sendable {
 /// Serializes all display discovery and I2C operations away from the main actor.
 @MainActor
 final class DDCVolumeCoordinator {
-    typealias Sleep = @Sendable (Duration) async throws -> Void
+    typealias Sleep = @Sendable (TimeInterval) async throws -> Void
 
     private let worker: DDCWorker
     private let sleep: Sleep
     private let onUpdate: @MainActor (DDCVolumeUpdate) -> Void
-    private let debounce: Duration
-    private let readWatchdog: Duration
+    private let debounce: TimeInterval
+    private let readWatchdog: TimeInterval
     private let onReadCompletion: @MainActor (AudioDeviceID, String, UInt64) -> Void
     private let onDebounceSettled: @MainActor () -> Void
     private var outputID: AudioDeviceID?
@@ -41,12 +41,12 @@ final class DDCVolumeCoordinator {
 
     init(
         transport: DDCVolumeTransport = DDCDisplayTransport(),
-        debounce: Duration = .milliseconds(150),
-        readWatchdog: Duration = .seconds(2),
+        debounce: TimeInterval = 0.15,
+        readWatchdog: TimeInterval = 2,
         beforeReadValidation: @escaping @Sendable () -> Void = {},
         onReadCompletion: @escaping @MainActor (AudioDeviceID, String, UInt64) -> Void = { _, _, _ in },
         onDebounceSettled: @escaping @MainActor () -> Void = {},
-        sleep: @escaping Sleep = { try await Task.sleep(for: $0) },
+        sleep: @escaping Sleep = { try await Task.sleep(seconds: $0) },
         onUpdate: @escaping @MainActor (DDCVolumeUpdate) -> Void
     ) {
         self.worker = DDCWorker(transport: transport, beforeReadValidation: beforeReadValidation)
@@ -196,7 +196,7 @@ final class DDCVolumeCoordinator {
             if let reply {
                 self.failures = 0
                 self.onUpdate(DDCVolumeUpdate(outputID: outputID, uid: uid, generation: token, scalar: reply.scalar, commandID: commandID))
-                self.schedulePoll(after: self.detailsVisible ? .seconds(2) : .seconds(10))
+                self.schedulePoll(after: self.detailsVisible ? 2 : 10)
             } else {
                 self.emit(nil, commandID: commandID)
                 self.schedulePoll(after: self.nextFailureInterval())
@@ -237,14 +237,14 @@ final class DDCVolumeCoordinator {
         }
     }
 
-    private func nextFailureInterval() -> Duration {
-        let intervals: [Duration] = [.seconds(2), .seconds(4), .seconds(8), .seconds(16), .seconds(32), .seconds(60)]
+    private func nextFailureInterval() -> TimeInterval {
+        let intervals: [TimeInterval] = [2, 4, 8, 16, 32, 60]
         let result = intervals[min(failures, intervals.count - 1)]
         failures += 1
         return result
     }
 
-    private func schedulePoll(after duration: Duration) {
+    private func schedulePoll(after duration: TimeInterval) {
         timerTask?.cancel()
         let sleep = self.sleep
         timerTask = Task { [weak self] in

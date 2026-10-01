@@ -2,7 +2,7 @@
 import Foundation
 
 struct BluetoothLEBatteryScanPolicy {
-    static let scanWindow: Duration = .seconds(5)
+    static let scanWindow: TimeInterval = 5
     static let automaticScanInterval: TimeInterval = 60
     static let successfulConnectionCooldown: TimeInterval = 60
     static let failedConnectionCooldown: TimeInterval = 30
@@ -20,7 +20,7 @@ struct BluetoothLEBatteryScanPolicy {
     static let resultLifetime: TimeInterval = 1800
     static let maxQueuedCandidates = 8
     static let maxConcurrentConnections = 2
-    static let connectionTimeout: Duration = .seconds(4)
+    static let connectionTimeout: TimeInterval = 4
 
     private(set) var generation: UInt64 = 0
     private(set) var queuedCandidateCount = 0
@@ -445,7 +445,7 @@ final class CoreBluetoothLEBatteryScanner: NSObject,
         automaticRefreshTask?.cancel()
         automaticRefreshTask = Task { @MainActor [weak self] in
             do {
-                try await Task.sleep(for: .seconds(Int(BluetoothLEBatteryScanPolicy.automaticScanInterval)))
+                try await Task.sleep(seconds: BluetoothLEBatteryScanPolicy.automaticScanInterval)
             } catch {
                 return
             }
@@ -486,7 +486,7 @@ final class CoreBluetoothLEBatteryScanner: NSObject,
         scanWindowTask?.cancel()
         scanWindowTask = Task { @MainActor [weak self] in
             do {
-                try await Task.sleep(for: BluetoothLEBatteryScanPolicy.scanWindow)
+                try await Task.sleep(seconds: BluetoothLEBatteryScanPolicy.scanWindow)
             } catch {
                 return
             }
@@ -536,7 +536,7 @@ final class CoreBluetoothLEBatteryScanner: NSObject,
             let generation = session.generation
             session.timeoutTask = Task { @MainActor [weak self] in
                 do {
-                    try await Task.sleep(for: BluetoothLEBatteryScanPolicy.connectionTimeout)
+                    try await Task.sleep(seconds: BluetoothLEBatteryScanPolicy.connectionTimeout)
                 } catch {
                     return
                 }

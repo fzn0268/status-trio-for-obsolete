@@ -144,7 +144,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
         refreshIntervalCancellable = settings.$refreshIntervalSeconds
             .removeDuplicates()
             .sink { [weak self] seconds in
-                self?.store.setRefreshInterval(.seconds(Int(seconds.rounded())))
+                self?.store.setRefreshInterval(seconds.rounded())
             }
 
         screenParametersCancellable = NotificationCenter.default.publisher(
@@ -475,7 +475,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
         popoverContentRetention.markClosed(at: Date())
         let delay = Self.popoverContentReleaseDelay
         popoverContentReleaseTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(delay))
+            try? await Task.sleep(seconds: delay)
             guard !Task.isCancelled, let self else { return }
             guard popoverContentRetention.shouldRelease(at: Date()), !popover.isShown else { return }
             popover.contentViewController = nil

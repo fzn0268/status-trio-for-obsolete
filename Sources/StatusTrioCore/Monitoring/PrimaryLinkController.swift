@@ -115,8 +115,8 @@ final class PrimaryLinkController: ObservableObject {
 
     private let reader: any PrimaryLinkReading
     private let wiredInterfaces: any WiredInterfaceProviding
-    private let periodicRefreshInterval: Duration
-    private let periodicRefreshSleep: @Sendable (Duration) async throws -> Void
+    private let periodicRefreshInterval: TimeInterval
+    private let periodicRefreshSleep: @Sendable (TimeInterval) async throws -> Void
     private var refreshGate = AsyncRequestGate()
     private(set) var isActive = false
     private var periodicRefreshTask: Task<Void, Never>?
@@ -124,9 +124,9 @@ final class PrimaryLinkController: ObservableObject {
     init(
         reader: any PrimaryLinkReading = SystemPrimaryLinkReader(),
         wiredInterfaces: any WiredInterfaceProviding = SystemWiredInterfaceProvider(),
-        periodicRefreshInterval: Duration = .seconds(30),
-        periodicRefreshSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        periodicRefreshInterval: TimeInterval = 30,
+        periodicRefreshSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) {
         self.reader = reader

@@ -569,8 +569,8 @@ final class SettingsStore: ObservableObject {
         popupSectionOrder.filter { enabledPopupSections.contains($0) }
     }
 
-    var refreshInterval: Duration {
-        .seconds(Int(refreshIntervalSeconds.rounded()))
+    var refreshInterval: TimeInterval {
+        refreshIntervalSeconds.rounded()
     }
 
     var visibleOutputDeviceLimit: Int? {

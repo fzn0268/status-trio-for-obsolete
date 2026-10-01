@@ -18,16 +18,16 @@ import Foundation
 /// recovery and a bounded thread count cannot both hold.
 @MainActor
 final class ReadWatchdog {
-    private let baseTimeout: Duration
-    private let maxTimeout: Duration
-    private let sleep: @Sendable (Duration) async throws -> Void
+    private let baseTimeout: TimeInterval
+    private let maxTimeout: TimeInterval
+    private let sleep: @Sendable (TimeInterval) async throws -> Void
     private var consecutiveTimeouts = 0
     private var task: Task<Void, Never>?
 
     init(
-        baseTimeout: Duration,
-        maxTimeout: Duration,
-        sleep: @escaping @Sendable (Duration) async throws -> Void
+        baseTimeout: TimeInterval,
+        maxTimeout: TimeInterval,
+        sleep: @escaping @Sendable (TimeInterval) async throws -> Void
     ) {
         self.baseTimeout = baseTimeout
         self.maxTimeout = maxTimeout
@@ -41,7 +41,7 @@ final class ReadWatchdog {
     }
 
     /// The wait the next armed watchdog will use.
-    var nextTimeout: Duration {
+    var nextTimeout: TimeInterval {
         var interval = min(baseTimeout, maxTimeout)
         for _ in 0..<consecutiveTimeouts {
             interval = min(interval * 2, maxTimeout)

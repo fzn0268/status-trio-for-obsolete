@@ -38,7 +38,7 @@ final class BatteryDetailsController: ObservableObject {
         refreshTask?.cancel()
         refreshTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
-                do { try await Task.sleep(for: .seconds(15), tolerance: .seconds(3)) }
+                do { try await Task.sleep(seconds: 15) }
                 catch { return }
                 guard !Task.isCancelled else { return }
                 self?.refresh()

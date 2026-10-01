@@ -5,7 +5,7 @@ import Foundation
 
 @MainActor
 final class SystemStatusStore: ObservableObject {
-    static let popupDebounceInterval: Duration = .milliseconds(500)
+    static let popupDebounceInterval: TimeInterval = 0.5
 
     /// The fallback poll refreshes the battery on every tick: its percentage and
     /// charging state are drawn into the menu bar icon and cannot go stale.
@@ -27,14 +27,6 @@ final class SystemStatusStore: ObservableObject {
     /// default interval, so a lost notification costs at most one refresh per
     /// cap.
     static let maximumDisplayAsleepSkips = 20
-
-    /// Tolerance for the fallback poll. Without one, macOS must wake the CPU on
-    /// an exact schedule to satisfy the timer, which is exactly what an idle
-    /// menu bar app should not ask for; a fifth of the interval still samples
-    /// often enough for a value that the push channels did not report.
-    static func refreshSleepTolerance(for interval: Duration) -> Duration {
-        interval / 5
-    }
 
     @Published private(set) var snapshot: StatusSnapshot
     @Published private(set) var popupSnapshot: StatusSnapshot
@@ -72,10 +64,10 @@ final class SystemStatusStore: ObservableObject {
     private let inputMonitor: (any AudioInputMonitoring)?
     private let volumeController: (any VolumeControlling)?
     private let volumeFeedback: (any VolumeFeedbackPlaying)?
-    private var refreshInterval: Duration
-    private let nameResolutionTimeout: Duration
-    private let sleep: @Sendable (Duration) async throws -> Void
-    private let popupDebounceSleep: @Sendable (Duration) async throws -> Void
+    private var refreshInterval: TimeInterval
+    private let nameResolutionTimeout: TimeInterval
+    private let sleep: @Sendable (TimeInterval) async throws -> Void
+    private let popupDebounceSleep: @Sendable (TimeInterval) async throws -> Void
     private let wakeNotificationCenter: NotificationCenter
     private var monitorTasks: [Task<Void, Never>] = []
     private var vpnUpdateTask: Task<Void, Never>?
@@ -129,16 +121,13 @@ final class SystemStatusStore: ObservableObject {
         volumeMonitor: any VolumeMonitoring,
         inputMonitor: (any AudioInputMonitoring)? = nil,
         volumeFeedback: (any VolumeFeedbackPlaying)? = VolumeFeedbackPlayer(),
-        refreshInterval: Duration = .seconds(15),
-        nameResolutionTimeout: Duration = .milliseconds(1500),
-        sleep: @escaping @Sendable (Duration) async throws -> Void = { interval in
-            try await Task.sleep(
-                for: interval,
-                tolerance: SystemStatusStore.refreshSleepTolerance(for: interval)
-            )
+        refreshInterval: TimeInterval = 15,
+        nameResolutionTimeout: TimeInterval = 1.5,
+        sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { interval in
+            try await Task.sleep(seconds: interval)
         },
-        popupDebounceSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        popupDebounceSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
         wakeNotificationCenter: NotificationCenter = NSWorkspace.shared.notificationCenter,
         batteryDetails: BatteryDetailsController = BatteryDetailsController(),
@@ -473,7 +462,7 @@ final class SystemStatusStore: ObservableObject {
         setPopoverVisible(true)
     }
 
-    func setRefreshInterval(_ interval: Duration) {
+    func setRefreshInterval(_ interval: TimeInterval) {
         guard interval != refreshInterval else { return }
         refreshInterval = interval
     }

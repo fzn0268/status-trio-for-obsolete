@@ -3,7 +3,7 @@ import Foundation
 
 @MainActor
 final class ChargingEffectClock: ObservableObject {
-    static let tickInterval = Duration.milliseconds(50)
+    static let tickInterval: TimeInterval = 0.05
     // Subtracting two Date values can compound their ~120-ns absolute precision
     // near the present epoch; allow a 500-ns clock-edge snap (1e-5 of a frame).
     private static let frameBoundaryTolerance = 1e-5 / Double(ChargingEffectTimeline.framesPerSecond)
@@ -14,7 +14,7 @@ final class ChargingEffectClock: ObservableObject {
     @Published private(set) var isRunning = false
 
     private let now: () -> Date
-    private let sleep: @Sendable (Duration) async throws -> Void
+    private let sleep: @Sendable (TimeInterval) async throws -> Void
     private var task: Task<Void, Never>?
     private var battery: BatteryStatus = .placeholder
     private var previousBattery: BatteryStatus? = .placeholder
@@ -27,8 +27,8 @@ final class ChargingEffectClock: ObservableObject {
 
     init(
         now: @escaping () -> Date = { Date() },
-        sleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        sleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) {
         self.now = now
