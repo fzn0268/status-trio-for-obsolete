@@ -1123,7 +1123,7 @@ final class WiFiClassifierTests: XCTestCase {
 
         let retry = expectation(description: "retry read starts")
         reader.onRead = { retry.fulfill() }
-        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: .seconds(5))
+        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: 5)
         XCTAssertTrue(watchdogArmed, "The monitor must arm the read watchdog")
         timeoutSleeper.releaseAll()
         await fulfillment(of: [retry], timeout: 5)
@@ -1148,7 +1148,7 @@ final class WiFiClassifierTests: XCTestCase {
 
         let retry = expectation(description: "retry read starts")
         reader.onRead = { retry.fulfill() }
-        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: .seconds(5))
+        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: 5)
         XCTAssertTrue(watchdogArmed, "The monitor must arm the read watchdog")
         timeoutSleeper.releaseAll()
         await fulfillment(of: [retry], timeout: 5)
@@ -1468,12 +1468,12 @@ final class WiFiClassifierTests: XCTestCase {
         initialPath: WiFiPathSnapshot? = nil,
         clock: ManualWiFiClock = ManualWiFiClock(),
         noInterfaceRecoveryLimit: Int = 3,
-        refreshDebounceSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        refreshDebounceSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
-        readTimeout: Duration = .seconds(5),
-        readTimeoutSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        readTimeout: TimeInterval = 5,
+        readTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) -> WiFiMonitor {
         WiFiMonitor(

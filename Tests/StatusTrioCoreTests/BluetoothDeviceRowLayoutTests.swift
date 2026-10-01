@@ -385,7 +385,7 @@ final class BluetoothDeviceRowLayoutTests: XCTestCase {
         hosting.appearance = NSAppearance(named: .aqua)
         hosting.frame = NSRect(origin: .zero, size: hosting.fittingSize)
         hosting.layoutSubtreeIfNeeded()
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(seconds: 0.05)
         hosting.frame = NSRect(origin: .zero, size: hosting.fittingSize)
         hosting.layoutSubtreeIfNeeded()
 

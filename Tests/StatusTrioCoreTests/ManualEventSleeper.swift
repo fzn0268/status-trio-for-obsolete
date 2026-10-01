@@ -1,16 +1,17 @@
 import Foundation
+@testable import StatusTrioCore
 
 @MainActor
 final class ManualEventSleeper {
     private(set) var callCount = 0
     private(set) var completionCount = 0
-    private(set) var durations: [Duration] = []
+    private(set) var durations: [TimeInterval] = []
 
     private var sleepContinuations: [CheckedContinuation<Void, Never>] = []
     private var callWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
     private var completionWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
 
-    func sleep(_ duration: Duration) async {
+    func sleep(_ duration: TimeInterval) async {
         callCount += 1
         durations.append(duration)
         resumeCallWaiters()
@@ -33,10 +34,10 @@ final class ManualEventSleeper {
     /// Bounded variant of `waitForCallCount(_:)`. Returns `false` when the call
     /// never arrives, so a regression fails the test instead of parking it until
     /// the whole-run timeout and turning a failure into a CI hang.
-    func waitForCallCount(_ count: Int, timeout: Duration) async -> Bool {
+    func waitForCallCount(_ count: Int, timeout: TimeInterval) async -> Bool {
         guard callCount < count else { return true }
         let timeoutTask = Task { @MainActor in
-            try? await Task.sleep(for: timeout)
+            try? await Task.sleep(seconds: timeout)
             guard !Task.isCancelled else { return }
             // Wake only the waiters this call is responsible for; other pending
             // waits keep waiting for their own call.

@@ -223,13 +223,13 @@ final class AudioInputMonitorTests: XCTestCase {
     monitor.setVisible(true)
     await fulfillment(of: [initial], timeout: 5)
 
-    let pollScheduled = sleeper.expectCall(.seconds(1), count: 1)
+    let pollScheduled = sleeper.expectCall(1, count: 1)
     await fulfillment(of: [pollScheduled], timeout: 5)
     hardware.setUsageReading(AudioInputUsageReading(defaultDeviceID: 11, isDefaultInputInUse: true))
     let becameActive = log.expectStatus("active input stream updates the visible status") {
       $0.isDefaultInputInUse == true
     }
-    XCTAssertTrue(sleeper.releaseNext(.seconds(1)))
+    XCTAssertTrue(sleeper.releaseNext(1))
     await fulfillment(of: [becameActive], timeout: 5)
 
     XCTAssertEqual(hardware.usageReadCount, 1)
@@ -418,10 +418,10 @@ final class AudioInputMonitorTests: XCTestCase {
     let rejected = log.expectStatus("matching scalar on a different device is not confirmation") {
       $0.error == .volumeFailed
     }
-    let coalesced = sleeper.expectCall(.milliseconds(80), count: 1)
+    let coalesced = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.8)
     await fulfillment(of: [coalesced], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
+    XCTAssertTrue(sleeper.releaseNext(0.08))
     await fulfillment(of: [writeStarted], timeout: 5)
 
     hardware.setReading(reading(defaultID: 22, scalar: 0.8))
@@ -483,10 +483,10 @@ final class AudioInputMonitorTests: XCTestCase {
     observation.emit(.defaultChanged)
     await fulfillment(of: [readStarted], timeout: 5)
 
-    let coalesced = sleeper.expectCall(.milliseconds(80), count: 1)
+    let coalesced = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.9)
     await fulfillment(of: [coalesced], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
+    XCTAssertTrue(sleeper.releaseNext(0.08))
 
     let rejected = log.expectStatus("pending scalar for old input is rejected after device changes") {
       $0.defaultDeviceID == 22 && $0.error == .volumeFailed
@@ -571,22 +571,22 @@ final class AudioInputMonitorTests: XCTestCase {
     monitor.setEnabled(true)
     await fulfillment(of: [initial], timeout: 5)
 
-    let firstWindow = sleeper.expectCall(.milliseconds(80), count: 1)
+    let firstWindow = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.2)
     await fulfillment(of: [firstWindow], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
+    XCTAssertTrue(sleeper.releaseNext(0.08))
     await fulfillment(of: [firstWriteStarted], timeout: 5)
 
-    let secondWindow = sleeper.expectCall(.milliseconds(80), count: 2)
+    let secondWindow = sleeper.expectCall(0.08, count: 2)
     monitor.setScalar(0.4)
     await fulfillment(of: [secondWindow], timeout: 5)
-    let thirdWindow = sleeper.expectCall(.milliseconds(80), count: 3)
+    let thirdWindow = sleeper.expectCall(0.08, count: 3)
     monitor.setScalar(0.8)
     await fulfillment(of: [thirdWindow], timeout: 5)
     let latestConfirmed = log.expectStatus("latest scalar readback") {
       $0.scalar == 0.8 && $0.error == nil
     }
-    sleeper.releaseAll(.milliseconds(80))
+    sleeper.releaseAll(0.08)
     firstWriteGate.release()
     await fulfillment(of: [latestConfirmed], timeout: 5)
 
@@ -603,7 +603,7 @@ final class AudioInputMonitorTests: XCTestCase {
     hardware.blockNextScalarWrite(with: writeGate)
     let monitor = AudioInputMonitor(
       hardware: hardware,
-      commandTimeout: .seconds(1),
+      commandTimeout: 1,
       sleep: { try await sleeper.sleep(for: $0) }
     )
     let log = AudioInputStatusLog(monitor.updates)
@@ -618,21 +618,21 @@ final class AudioInputMonitorTests: XCTestCase {
     monitor.setVisible(true)
     await fulfillment(of: [initial], timeout: 5)
 
-    let coalescing = sleeper.expectCall(.milliseconds(80), count: 1)
+    let coalescing = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.3)
     await fulfillment(of: [coalescing], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
-    let timeoutScheduled = sleeper.expectCall(.seconds(1), count: 1)
+    XCTAssertTrue(sleeper.releaseNext(0.08))
+    let timeoutScheduled = sleeper.expectCall(1, count: 1)
     await fulfillment(of: [writeStarted, timeoutScheduled], timeout: 5)
 
     let timedOut = log.expectStatus("timed-out scalar command") { $0.error == .timedOut }
-    sleeper.releaseNext(.seconds(1))
+    sleeper.releaseNext(1)
     await fulfillment(of: [timedOut], timeout: 5)
 
-    let nextCoalesce = sleeper.expectCall(.milliseconds(80), count: 2)
+    let nextCoalesce = sleeper.expectCall(0.08, count: 2)
     monitor.setScalar(0.9)
     await fulfillment(of: [nextCoalesce], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
+    XCTAssertTrue(sleeper.releaseNext(0.08))
     XCTAssertEqual(hardware.scalarWriteCount, 1, "A timed-out synchronous write still owns the sole writer")
     let refreshed = log.expectStatus("late completion refreshes actual hardware state") {
       $0.scalar == 0.3 && !$0.isRefreshing
@@ -652,7 +652,7 @@ final class AudioInputMonitorTests: XCTestCase {
     hardware.blockNextScalarWrite(with: writeGate)
     let monitor = AudioInputMonitor(
       hardware: hardware,
-      commandTimeout: .seconds(1),
+      commandTimeout: 1,
       sleep: { try await sleeper.sleep(for: $0) }
     )
     let log = AudioInputStatusLog(monitor.updates)
@@ -668,11 +668,11 @@ final class AudioInputMonitorTests: XCTestCase {
     await fulfillment(of: [initial], timeout: 5)
     let observation = try XCTUnwrap(hardware.waitForObservation(timeout: 5))
 
-    let scalarDebounce = sleeper.expectCall(.milliseconds(80), count: 1)
+    let scalarDebounce = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.9)
     await fulfillment(of: [scalarDebounce], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
-    let timeoutScheduled = sleeper.expectCall(.seconds(1), count: 1)
+    XCTAssertTrue(sleeper.releaseNext(0.08))
+    let timeoutScheduled = sleeper.expectCall(1, count: 1)
     await fulfillment(of: [writeStarted, timeoutScheduled], timeout: 5)
 
     hardware.setReading(reading(defaultID: 22, scalar: 0.77))
@@ -683,7 +683,7 @@ final class AudioInputMonitorTests: XCTestCase {
     await fulfillment(of: [invalidated], timeout: 5)
 
     let timedOut = log.expectStatus("old-device command reaches timeout") { $0.error == .timedOut }
-    XCTAssertTrue(sleeper.releaseNext(.seconds(1)))
+    XCTAssertTrue(sleeper.releaseNext(1))
     await fulfillment(of: [timedOut], timeout: 5)
 
     let latest = log.expectStatus("late old-device completion leaves new system device intact") {
@@ -721,10 +721,10 @@ final class AudioInputMonitorTests: XCTestCase {
     let failed = log.expectStatus("HAL write failure is surfaced") {
       $0.error == .volumeFailed && $0.scalar == 0.1 && !$0.isBusy
     }
-    let coalescing = sleeper.expectCall(.milliseconds(80), count: 1)
+    let coalescing = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.9)
     await fulfillment(of: [coalescing], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
+    XCTAssertTrue(sleeper.releaseNext(0.08))
     await fulfillment(of: [failed], timeout: 5)
     XCTAssertEqual(hardware.readRequests, [true, false])
   }
@@ -789,10 +789,10 @@ final class AudioInputMonitorTests: XCTestCase {
     await fulfillment(of: [initial], timeout: 5)
     let observation = try XCTUnwrap(hardware.waitForObservation(timeout: 5))
 
-    let coalescing = sleeper.expectCall(.milliseconds(80), count: 1)
+    let coalescing = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.3)
     await fulfillment(of: [coalescing], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
+    XCTAssertTrue(sleeper.releaseNext(0.08))
     await fulfillment(of: [writeStarted], timeout: 5)
     XCTAssertEqual(hardware.readRequests, [true])
 
@@ -827,24 +827,24 @@ final class AudioInputMonitorTests: XCTestCase {
     let mismatch = log.expectStatus("target must be verified against readback") {
       $0.error == .volumeFailed
     }
-    let coalesced = sleeper.expectCall(.milliseconds(80), count: 1)
+    let coalesced = sleeper.expectCall(0.08, count: 1)
     monitor.setScalar(0.9)
     await fulfillment(of: [coalesced], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
-    let firstExpiry = sleeper.expectCall(.seconds(4), count: 1)
+    XCTAssertTrue(sleeper.releaseNext(0.08))
+    let firstExpiry = sleeper.expectCall(4, count: 1)
     await fulfillment(of: [mismatch, firstExpiry], timeout: 5)
     XCTAssertEqual(log.values.last?.scalar, 0.1)
 
     let expired = log.expectStatus("failure clears after four seconds") { $0.error == nil }
-    XCTAssertTrue(sleeper.releaseNext(.seconds(4)))
+    XCTAssertTrue(sleeper.releaseNext(4))
     await fulfillment(of: [expired], timeout: 5)
 
     let failedAgain = log.expectStatus("second readback failure") { $0.error == .volumeFailed }
-    let secondCoalesce = sleeper.expectCall(.milliseconds(80), count: 2)
+    let secondCoalesce = sleeper.expectCall(0.08, count: 2)
     monitor.setScalar(0.7)
     await fulfillment(of: [secondCoalesce], timeout: 5)
-    XCTAssertTrue(sleeper.releaseNext(.milliseconds(80)))
-    let secondExpiry = sleeper.expectCall(.seconds(4), count: 2)
+    XCTAssertTrue(sleeper.releaseNext(0.08))
+    let secondExpiry = sleeper.expectCall(4, count: 2)
     await fulfillment(of: [failedAgain, secondExpiry], timeout: 5)
 
     let clearedByAction = log.expectStatus("new action immediately clears prior failure") {
@@ -941,17 +941,17 @@ private final class ManualAudioGate: @unchecked Sendable {
 private final class ManualAudioSleeper: @unchecked Sendable {
   private struct Waiter {
     let id: UUID
-    let duration: Duration
+    let duration: TimeInterval
     let continuation: CheckedContinuation<Void, any Error>
   }
 
   private let lock = NSLock()
   private var waiters: [Waiter] = []
   private var cancelledBeforeRegistration = Set<UUID>()
-  private var callCounts: [(Duration, Int)] = []
-  private var callExpectations: [(Duration, Int, XCTestExpectation)] = []
+  private var callCounts: [(TimeInterval, Int)] = []
+  private var callExpectations: [(TimeInterval, Int, XCTestExpectation)] = []
 
-  func expectCall(_ duration: Duration, count: Int) -> XCTestExpectation {
+  func expectCall(_ duration: TimeInterval, count: Int) -> XCTestExpectation {
     let expectation = XCTestExpectation(description: "sleep(\(duration)) call \(count)")
     lock.lock()
     let observed = callCounts.first { $0.0 == duration }?.1 ?? 0
@@ -961,7 +961,7 @@ private final class ManualAudioSleeper: @unchecked Sendable {
     return expectation
   }
 
-  func sleep(for duration: Duration) async throws {
+  func sleep(for duration: TimeInterval) async throws {
     let id = UUID()
     try await withTaskCancellationHandler(
       operation: {
@@ -987,7 +987,7 @@ private final class ManualAudioSleeper: @unchecked Sendable {
   }
 
   @discardableResult
-  func releaseNext(_ duration: Duration) -> Bool {
+  func releaseNext(_ duration: TimeInterval) -> Bool {
     lock.lock()
     guard let index = waiters.firstIndex(where: { $0.duration == duration }) else {
       lock.unlock()
@@ -999,7 +999,7 @@ private final class ManualAudioSleeper: @unchecked Sendable {
     return true
   }
 
-  func releaseAll(_ duration: Duration? = nil) {
+  func releaseAll(_ duration: TimeInterval? = nil) {
     lock.lock()
     let released = waiters.filter { duration == nil || $0.duration == duration }
     waiters.removeAll { waiter in released.contains { $0.id == waiter.id } }

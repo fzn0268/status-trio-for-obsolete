@@ -101,7 +101,7 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
             backend: backend,
             sleeper: ImmediateListeningModeSleeper(),
             retryAttempts: attempts,
-            retryDelay: .milliseconds(1)
+            retryDelay: 0.001
         )
         let provider = FakeEndpointProvider(endpoints: endpoints)
         let controller = BluetoothListeningModeController(
@@ -115,7 +115,7 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
 
     /// The linger a failure stays published for. It is what the app uses, and the
     /// window a poll has to land inside, so the two cannot disagree.
-    private static let failureClearDelay: Duration = .seconds(2)
+    private static let failureClearDelay: TimeInterval = 2
 
     /// Polls the main actor until `condition` holds, so a spawned write task gets a
     /// chance to run and publish before the assertion. Fails if it never settles.
@@ -126,13 +126,13 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
     /// only a bound on a genuinely stuck write; what a state can be *seen* in is
     /// the linger above, not this.
     private func waitUntil(
-        timeout: Duration = .seconds(5),
+        timeout: TimeInterval = 5,
         _ condition: @MainActor () -> Bool
     ) async {
-        let deadline = ContinuousClock.now.advanced(by: timeout)
-        while ContinuousClock.now < deadline {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(5))
+            try? await Task.sleep(seconds: 0.005)
         }
         XCTFail("condition was not met within \(timeout)")
     }
@@ -310,7 +310,7 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
         XCTAssertTrue(controller.presentations.isEmpty)
 
         // A completion from the cancelled write cannot repopulate a cleared surface.
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(seconds: 0.05)
         XCTAssertTrue(controller.presentations.isEmpty)
     }
 
@@ -326,7 +326,7 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
 
         controller.refresh(devices: []) // supersede the write's generation
 
-        try? await Task.sleep(for: .milliseconds(60))
+        try? await Task.sleep(seconds: 0.06)
         XCTAssertNil(controller.presentations[key], "a stale completion is discarded")
     }
 
@@ -336,7 +336,7 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
         XCTAssertEqual(provider.callCount, 1)
 
         // No background task re-reads it: left alone, the count never climbs.
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(seconds: 0.1)
         XCTAssertEqual(provider.callCount, 1, "there is no polling")
     }
 
@@ -390,8 +390,8 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
         // the read-back — it only represents that "the device is now on the
         // target for reasons beyond our write", the case the guard must ignore.
         struct StalledSleeper: BluetoothListeningModeSleeping {
-            func sleep(for duration: Duration) async {
-                try? await Task.sleep(for: .seconds(60))
+            func sleep(for duration: TimeInterval) async {
+                try? await Task.sleep(seconds: 60)
             }
         }
 
@@ -402,13 +402,13 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
             backend: backend,
             sleeper: StalledSleeper(),
             retryAttempts: 4,
-            retryDelay: .seconds(1)
+            retryDelay: 1
         )
         let controller = BluetoothListeningModeController(
             hal: hal,
             endpointProvider: FakeEndpointProvider(endpoints: [endpoint()]),
             listenerBackend: listener,
-            failureClearDelay: .milliseconds(30)
+            failureClearDelay: 0.03
         )
         controller.refresh(devices: [device()])
         controller.setMode(.transparency, for: device())
@@ -418,7 +418,7 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
         // read reports NC, write succeeds) and park inside `confirmWrite`'s first
         // `await sleeper.sleep`. From this point the presentation is genuinely in
         // flight until the 60-second sleep expires.
-        try? await Task.sleep(for: .milliseconds(20))
+        try? await Task.sleep(seconds: 0.02)
         XCTAssertEqual(
             controller.presentations[key]?.actionState,
             .changing(to: .transparency),
@@ -430,7 +430,7 @@ final class BluetoothListeningModeControllerLifecycleTests: XCTestCase {
         // the spinner. The correct behavior is to drop the signal and let the write
         // path settle when CoreAudio confirms.
         listener.trigger(deviceID: endpointID)
-        try? await Task.sleep(for: .milliseconds(20))
+        try? await Task.sleep(seconds: 0.02)
         XCTAssertEqual(
             controller.presentations[key]?.actionState,
             .changing(to: .transparency),

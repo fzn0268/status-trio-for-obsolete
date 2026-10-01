@@ -141,7 +141,7 @@ final class DDCVolumePresentationTests: XCTestCase {
         reader.reading = nil
         monitor.refresh()
         let disappeared = await iterator.next()
-        try await Task.sleep(for: .milliseconds(250))
+        try await Task.sleep(seconds: 0.25)
 
         XCTAssertNil(disappeared?.scalar)
         XCTAssertEqual(transport.writeCount, 0)

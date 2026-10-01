@@ -26,7 +26,7 @@ struct StatusBarControllerVisibilityTests {
                 firstTimeRead = false
                 return start
             },
-            sleep: { _ in try await Task.sleep(for: .seconds(60)) }
+            sleep: { _ in try await Task.sleep(seconds: 60) }
         )
         clock.update(
             battery: ChargingEffectTestMode.battery(battery, enabled: true),
@@ -83,7 +83,7 @@ struct StatusBarControllerVisibilityTests {
                 firstTimeRead = false
                 return start
             },
-            sleep: { _ in try await Task.sleep(for: .seconds(60)) }
+            sleep: { _ in try await Task.sleep(seconds: 60) }
         )
         clock.update(battery: battery, enabled: true, reduceMotion: false, displayAsleep: false)
         defer { clock.stop() }

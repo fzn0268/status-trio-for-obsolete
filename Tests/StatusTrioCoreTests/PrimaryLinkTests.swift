@@ -324,7 +324,7 @@ final class PrimaryLinkControllerTests: XCTestCase {
         PrimaryLinkController(
             reader: reader,
             wiredInterfaces: FakeWiredInterfaces(interfaces: wiredInterfaces),
-            periodicRefreshInterval: .seconds(600)
+            periodicRefreshInterval: 600
         )
     }
 
@@ -344,7 +344,7 @@ final class PrimaryLinkControllerTests: XCTestCase {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<200 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
     }
 }

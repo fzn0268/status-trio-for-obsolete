@@ -51,7 +51,7 @@ final class IconRenderCoalescerTests: XCTestCase {
 
         XCTAssertEqual(redraws, ["prime", "newest"])
         XCTAssertEqual(sleeper.durations.count, 1)
-        XCTAssertLessThanOrEqual(sleeper.durations[0], .seconds(0.05))
+        XCTAssertLessThanOrEqual(sleeper.durations[0], 0.05)
     }
 
     func testBurstAfterTheIntervalStillRunsImmediately() async {

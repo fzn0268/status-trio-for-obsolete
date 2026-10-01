@@ -230,11 +230,11 @@ final class BluetoothPermissionTimingTests: XCTestCase {
     }
 
     private func waitUntil(
-        timeout: Duration = .seconds(1),
+        timeout: TimeInterval = 1,
         condition: () -> Bool
     ) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition(), ContinuousClock.now < deadline {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition(), Date() < deadline {
             await Task.yield()
         }
         XCTAssertTrue(condition(), "Timed out waiting for the Bluetooth read result")

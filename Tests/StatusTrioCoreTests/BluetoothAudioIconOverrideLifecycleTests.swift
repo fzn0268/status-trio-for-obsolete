@@ -110,12 +110,12 @@ final class BluetoothAudioIconOverrideLifecycleTests: XCTestCase {
     }
 
     private func waitUntil(
-        timeout: Duration = .seconds(2),
+        timeout: TimeInterval = 2,
         condition: @escaping @MainActor () -> Bool
     ) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition(), ContinuousClock.now < deadline {
-            try? await Task.sleep(for: .milliseconds(5))
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition(), Date() < deadline {
+            try? await Task.sleep(seconds: 0.005)
         }
         XCTAssertTrue(condition(), "condition did not become true before timeout")
     }

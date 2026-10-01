@@ -138,7 +138,7 @@ final class OutputDeviceListeningModeRowTests: XCTestCase {
         hosting.appearance = NSAppearance(named: .aqua)
         hosting.frame = NSRect(origin: .zero, size: hosting.fittingSize)
         hosting.layoutSubtreeIfNeeded()
-        try await Task.sleep(for: .milliseconds(60))
+        try await Task.sleep(seconds: 0.06)
         hosting.frame = NSRect(origin: .zero, size: hosting.fittingSize)
         hosting.layoutSubtreeIfNeeded()
 

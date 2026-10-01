@@ -36,9 +36,9 @@ struct ChargingEffectClockTests {
         #expect(clock.phase?.kind == .burst)
         #expect(clock.phase?.step == 0)
         await sleeper.waitForCallCount(1)
-        #expect(sleeper.durations.first == .milliseconds(50))
+        #expect(sleeper.durations.first == 0.05)
 
-        time.advance(.milliseconds(50))
+        time.advance(0.05)
         sleeper.releaseAll()
         await sleeper.waitForCallCount(2)
         #expect(clock.phase?.kind == .burst)
@@ -104,7 +104,7 @@ struct ChargingEffectClockTests {
         clock.update(battery: battery, enabled: true, reduceMotion: false, displayAsleep: false)
         for frame in 1...12 {
             await sleeper.waitForCallCount(frame)
-            time.advance(.milliseconds(50))
+            time.advance(0.05)
             sleeper.releaseAll()
         }
         await sleeper.waitForCallCount(13)
@@ -247,18 +247,11 @@ private final class ManualDateProvider {
         start.addingTimeInterval(elapsed)
     }
 
-    func advance(_ duration: Duration) {
-        elapsed += duration.timeInterval
+    func advance(_ duration: TimeInterval) {
+        elapsed += duration
     }
 
     func setElapsed(_ interval: TimeInterval) {
         elapsed = interval
-    }
-}
-
-private extension Duration {
-    var timeInterval: TimeInterval {
-        let components = self.components
-        return Double(components.seconds) + Double(components.attoseconds) / 1e18
     }
 }

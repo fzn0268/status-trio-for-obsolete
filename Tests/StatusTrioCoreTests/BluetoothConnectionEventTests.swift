@@ -17,7 +17,7 @@ final class BluetoothConnectionEventTests: XCTestCase {
             notificationCenter: NotificationCenter(),
             workspaceNotificationCenter: NotificationCenter(),
             connectionEvents: events,
-            connectionEventDebounceInterval: .milliseconds(750),
+            connectionEventDebounceInterval: 0.75,
             connectionEventDebounceSleep: { duration in await sleeper.sleep(duration) }
         )
 
@@ -33,8 +33,8 @@ final class BluetoothConnectionEventTests: XCTestCase {
         events.emit()
         events.emit()
         events.emit()
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
-        XCTAssertEqual(sleeper.durations.first, .milliseconds(750))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
+        XCTAssertEqual(sleeper.durations.first, 0.75)
         XCTAssertEqual(reader.readCount, 1, "the debounce must hold the read until it fires")
 
         sleeper.releaseAll()
@@ -153,7 +153,7 @@ final class BluetoothConnectionEventTests: XCTestCase {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<1_000 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTFail("Timed out waiting for the Bluetooth controller")
     }

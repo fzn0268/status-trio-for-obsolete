@@ -175,7 +175,7 @@ final class BatteryDetailsControllerTests: XCTestCase {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<1_000 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTFail("Timed out waiting for background read")
     }
@@ -255,7 +255,7 @@ final class BatteryDetailsControllerTests: XCTestCase {
         controller.refresh()
         controller.deactivate()
         reader.gate.signal()
-        try? await Task.sleep(for: .milliseconds(30))
+        try? await Task.sleep(seconds: 0.03)
         XCTAssertNil(controller.details)
         XCTAssertEqual(reader.count, 1)
     }

@@ -36,7 +36,7 @@ final class BluetoothDeviceActionsTests: XCTestCase {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<500 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTFail("Timed out waiting for the controller to settle")
     }
@@ -172,9 +172,9 @@ final class BluetoothDeviceActionsTests: XCTestCase {
         controller.performDeviceAction(for: device)
         let address = BluetoothBatteryReader.normalizedAddress(airPodsAddress)
 
-        let armed = await timeoutSleeper.waitForCallCount(1, timeout: .seconds(1))
+        let armed = await timeoutSleeper.waitForCallCount(1, timeout: 1)
         XCTAssertTrue(armed, "the action must arm a timeout")
-        XCTAssertEqual(timeoutSleeper.durations.first, .seconds(10))
+        XCTAssertEqual(timeoutSleeper.durations.first, 10)
         timeoutSleeper.releaseAll()
 
         await waitUntil { controller.deviceActionStates[address] == .failed(.connect) }
@@ -198,9 +198,9 @@ final class BluetoothDeviceActionsTests: XCTestCase {
         let address = BluetoothBatteryReader.normalizedAddress(airPodsAddress)
         await waitUntil { controller.deviceActionStates[address] == .failed(.connect) }
 
-        let armed = await failureSleeper.waitForCallCount(1, timeout: .seconds(1))
+        let armed = await failureSleeper.waitForCallCount(1, timeout: 1)
         XCTAssertTrue(armed, "a failure must arm its own clear")
-        XCTAssertEqual(failureSleeper.durations.first, .seconds(4))
+        XCTAssertEqual(failureSleeper.durations.first, 4)
         failureSleeper.releaseAll()
 
         await waitUntil { controller.deviceActionStates[address] == nil }
@@ -244,7 +244,7 @@ final class BluetoothDeviceActionsTests: XCTestCase {
         // The first request never answers: it blocks past the timeout, the row
         // reports the failure, and the user tries again.
         controller.performDeviceAction(for: device)
-        _ = await timeoutSleeper.waitForCallCount(1, timeout: .seconds(1))
+        _ = await timeoutSleeper.waitForCallCount(1, timeout: 1)
         timeoutSleeper.releaseAll()
         await waitUntil { controller.deviceActionStates[address] == .failed(.connect) }
 
@@ -255,7 +255,7 @@ final class BluetoothDeviceActionsTests: XCTestCase {
         // to the request the retry replaced, so the retry must be untouched.
         performer.answerFirst(accepted: false)
         await Task.yield()
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(seconds: 0.05)
 
         XCTAssertEqual(
             controller.deviceActionStates[address],
@@ -288,7 +288,7 @@ final class BluetoothDeviceActionsTests: XCTestCase {
         // action the report already settled, so it must not paint a failure.
         performer.answerFirst(accepted: false)
         await Task.yield()
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(seconds: 0.05)
 
         XCTAssertNil(
             controller.deviceActionStates[address],

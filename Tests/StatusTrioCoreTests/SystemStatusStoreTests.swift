@@ -14,7 +14,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60)
+            refreshInterval: 60
         )
 
         let updatesApplied = expectation(description: "independent monitor updates applied")
@@ -50,7 +50,7 @@ final class SystemStatusStoreTests: XCTestCase {
             wifiMonitor: FakeWiFiMonitor(),
             vpnMonitor: vpn,
             volumeMonitor: FakeVolumeMonitor(),
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() }
         )
 
@@ -95,7 +95,7 @@ final class SystemStatusStoreTests: XCTestCase {
             wifiMonitor: wifi,
             volumeMonitor: volume,
             inputMonitor: input,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             wakeNotificationCenter: wakeCenter
         )
 
@@ -248,7 +248,7 @@ final class SystemStatusStoreTests: XCTestCase {
             isRefreshing: false, isBusy: false, error: nil
         )
         input.send(disabledValue)
-        try? await Task.sleep(for: .milliseconds(10))
+        try? await Task.sleep(seconds: 0.01)
         XCTAssertEqual(store.liveInput, accepted)
 
         store.stop()
@@ -258,7 +258,7 @@ final class SystemStatusStoreTests: XCTestCase {
             isRefreshing: false, isBusy: false, error: nil
         )
         input.send(stoppedValue)
-        try? await Task.sleep(for: .milliseconds(10))
+        try? await Task.sleep(seconds: 0.01)
 
         XCTAssertEqual(store.liveInput, accepted)
         XCTAssertEqual(input.stopCount, 1)
@@ -273,14 +273,14 @@ final class SystemStatusStoreTests: XCTestCase {
         store.setPopoverVisible(true)
         details.activate(state: BatteryPowerState(.placeholder))
         for _ in 0..<100 where details.details == nil {
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTAssertNotNil(details.details)
         store.setPopoverVisible(false)
         XCTAssertFalse(store.isPopoverVisible)
         XCTAssertNil(details.details, "Closing the popover stops collection even if its hosting view is retained")
         details.refresh()
-        try? await Task.sleep(for: .milliseconds(10))
+        try? await Task.sleep(seconds: 0.01)
         XCTAssertNil(details.details)
         store.stop()
     }
@@ -319,7 +319,7 @@ final class SystemStatusStoreTests: XCTestCase {
     }
 
     func testPopupDebounceIntervalIs500Milliseconds() {
-        XCTAssertEqual(SystemStatusStore.popupDebounceInterval, .milliseconds(500))
+        XCTAssertEqual(SystemStatusStore.popupDebounceInterval, 0.5)
     }
 
     func testReportsWhetherPopoverDetailsAreOpen() {
@@ -415,7 +415,7 @@ final class SystemStatusStoreTests: XCTestCase {
         PrimaryLinkController(
             reader: StubPrimaryLinkReader(),
             wiredInterfaces: StubWiredInterfaces(names: ["en0"]),
-            periodicRefreshInterval: .seconds(600)
+            periodicRefreshInterval: 600
         )
     }
 
@@ -431,7 +431,7 @@ final class SystemStatusStoreTests: XCTestCase {
         monitor.send(value, constrained: constrained)
         for _ in 0..<200 where store.snapshot.connection != value
             || store.isNetworkConstrained != constrained {
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTAssertEqual(store.snapshot.connection, value)
         XCTAssertEqual(store.isNetworkConstrained, constrained)
@@ -465,7 +465,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: FakeVolumeMonitor(),
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             popupDebounceSleep: { _ in await sleeper.sleep() }
         )
         let finalPopupUpdate = expectation(description: "final popup snapshot published")
@@ -624,8 +624,8 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: FakeBatteryMonitor(),
             wifiMonitor: wifi,
             volumeMonitor: FakeVolumeMonitor(),
-            refreshInterval: .seconds(60),
-            nameResolutionTimeout: .seconds(3),
+            refreshInterval: 60,
+            nameResolutionTimeout: 3,
             popupDebounceSleep: { duration in await sleeper.sleep(duration) }
         )
         let connected = expectation(description: "connected snapshot applied")
@@ -654,7 +654,7 @@ final class SystemStatusStoreTests: XCTestCase {
         store.setPopoverVisible(true)
         XCTAssertTrue(store.isResolvingWiFiName)
         await sleeper.waitForCallCount(1)
-        XCTAssertEqual(sleeper.durations.last, .seconds(3))
+        XCTAssertEqual(sleeper.durations.last, 3)
 
         sleeper.releaseAll()
         await fulfillment(of: [cleared], timeout: 1)
@@ -740,7 +740,7 @@ final class SystemStatusStoreTests: XCTestCase {
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: volume,
             volumeFeedback: FakeVolumeFeedbackPlayer(),
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             popupDebounceSleep: { _ in await sleeper.sleep() }
         )
 
@@ -772,7 +772,7 @@ final class SystemStatusStoreTests: XCTestCase {
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: volume,
             volumeFeedback: feedback,
-            refreshInterval: .seconds(60)
+            refreshInterval: 60
         )
 
         store.start()
@@ -813,7 +813,7 @@ final class SystemStatusStoreTests: XCTestCase {
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: volume,
             volumeFeedback: feedback,
-            refreshInterval: .seconds(60)
+            refreshInterval: 60
         )
 
         store.start()
@@ -836,7 +836,7 @@ final class SystemStatusStoreTests: XCTestCase {
         let volume = FakeVolumeMonitor()
         let store = SystemStatusStore(
             batteryMonitor: FakeBatteryMonitor(), wifiMonitor: FakeWiFiMonitor(),
-            volumeMonitor: volume, refreshInterval: .seconds(60)
+            volumeMonitor: volume, refreshInterval: 60
         )
         store.start()
         let status = VolumeStatus(scalar: 0.75, isMuted: false, deviceName: "XV272U",
@@ -858,7 +858,7 @@ final class SystemStatusStoreTests: XCTestCase {
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: volume,
             volumeFeedback: FakeVolumeFeedbackPlayer(),
-            refreshInterval: .seconds(60)
+            refreshInterval: 60
         )
         let currentDevice = AudioOutputDevice(
             id: 42,
@@ -892,7 +892,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: FakeBatteryMonitor(),
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             popupDebounceSleep: { _ in await sleeper.sleep() }
         )
 
@@ -928,7 +928,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: FakeBatteryMonitor(),
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             popupDebounceSleep: { _ in await sleeper.sleep() }
         )
         let liveUpdate = expectation(description: "live volume snapshot published")
@@ -971,7 +971,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60)
+            refreshInterval: 60
         )
 
         let batteryUpdated = expectation(description: "battery snapshot published")
@@ -1009,7 +1009,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: FakeVolumeMonitor(),
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             popupDebounceSleep: { _ in await sleeper.sleep() }
         )
 
@@ -1031,7 +1031,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: FakeVolumeMonitor(),
-            refreshInterval: .seconds(60)
+            refreshInterval: 60
         )
 
         let barrierPublished = expectation(description: "barrier snapshot published")
@@ -1207,7 +1207,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() }
         )
 
@@ -1235,32 +1235,20 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: FakeWiFiMonitor(),
             volumeMonitor: FakeVolumeMonitor(),
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { duration in await sleeper.sleep(duration) }
         )
 
         store.start()
         await sleeper.waitForCallCount(1)
 
-        store.setRefreshInterval(.seconds(5))
+        store.setRefreshInterval(5)
         sleeper.releaseNext()
         await sleeper.waitForCompletionCount(1)
         await sleeper.waitForCallCount(2)
 
-        XCTAssertEqual(sleeper.durations, [.seconds(60), .seconds(5)])
+        XCTAssertEqual(sleeper.durations, [60, 5])
         store.stop()
-    }
-
-    func testFallbackSleepToleranceCoversTheAdjustableRange() {
-        // A fifth of the interval. The fallback poll is a safety net behind the
-        // push channels, so macOS may slide it onto another timer, but the sampling
-        // cadence has to survive that.
-        XCTAssertEqual(SystemStatusStore.refreshSleepTolerance(for: .seconds(5)), .seconds(1))
-        XCTAssertEqual(SystemStatusStore.refreshSleepTolerance(for: .seconds(10)), .seconds(2))
-        XCTAssertEqual(SystemStatusStore.refreshSleepTolerance(for: .seconds(15)), .seconds(3))
-        XCTAssertEqual(SystemStatusStore.refreshSleepTolerance(for: .seconds(30)), .seconds(6))
-        XCTAssertEqual(SystemStatusStore.refreshSleepTolerance(for: .seconds(60)), .seconds(12))
-        XCTAssertEqual(SystemStatusStore.refreshSleepTolerance(for: .seconds(1)), .milliseconds(200))
     }
 
     func testFallbackPollDefaultsToFifteenSeconds() async {
@@ -1275,7 +1263,7 @@ final class SystemStatusStoreTests: XCTestCase {
         store.start()
         await sleeper.waitForCallCount(1)
 
-        XCTAssertEqual(sleeper.durations.first, .seconds(15))
+        XCTAssertEqual(sleeper.durations.first, 15)
         store.stop()
         sleeper.releaseAll()
     }
@@ -1289,7 +1277,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() }
         )
 
@@ -1320,7 +1308,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() }
         )
 
@@ -1349,7 +1337,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() }
         )
 
@@ -1376,7 +1364,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: FakeBatteryMonitor(),
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() }
         )
 
@@ -1405,7 +1393,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() },
             wakeNotificationCenter: displayCenter
         )
@@ -1453,7 +1441,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() },
             wakeNotificationCenter: displayCenter
         )
@@ -1517,7 +1505,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() },
             wakeNotificationCenter: wakeCenter
         )
@@ -1584,7 +1572,7 @@ final class SystemStatusStoreTests: XCTestCase {
             batteryMonitor: battery,
             wifiMonitor: wifi,
             volumeMonitor: volume,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             sleep: { _ in await sleeper.sleep() },
             wakeNotificationCenter: displayCenter
         )
@@ -1826,7 +1814,7 @@ final class SystemStatusStoreTests: XCTestCase {
                 connectionMonitor: connection,
                 volumeMonitor: volume,
                 inputMonitor: inputMonitor,
-                refreshInterval: .seconds(60),
+                refreshInterval: 60,
                 wakeNotificationCenter: wakeNotificationCenter
             )
         }
@@ -1835,7 +1823,7 @@ final class SystemStatusStoreTests: XCTestCase {
             wifiMonitor: wifi,
             volumeMonitor: volume,
             inputMonitor: inputMonitor,
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             wakeNotificationCenter: wakeNotificationCenter
         )
     }
@@ -1874,15 +1862,14 @@ final class SystemStatusStoreTests: XCTestCase {
     }
 
     private func waitUntil(_ condition: () -> Bool) async {
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(1))
+        let deadline = Date().addingTimeInterval(1)
 
         while !condition() {
-            guard clock.now < deadline else {
+            guard Date() < deadline else {
                 XCTFail("Timed out waiting for the expected state")
                 return
             }
-            try? await Task.sleep(for: .milliseconds(1))
+            try? await Task.sleep(seconds: 0.001)
         }
     }
 }
@@ -1913,13 +1900,13 @@ private final class FakeVPNMonitor: VPNMonitoring {
 private final class ManualSleeper {
     private(set) var callCount = 0
     private(set) var completionCount = 0
-    private(set) var durations: [Duration] = []
+    private(set) var durations: [TimeInterval] = []
 
     private var sleepContinuations: [CheckedContinuation<Void, Never>] = []
     private var callWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
     private var completionWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
 
-    func sleep(_ duration: Duration = .zero) async {
+    func sleep(_ duration: TimeInterval = 0) async {
         callCount += 1
         durations.append(duration)
         resumeCallWaiters()

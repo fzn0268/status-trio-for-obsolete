@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+@testable import StatusTrioCore
 
 struct TestUserDefaultsTests {
     @Test func removingATestSuiteDeletesItsPreferenceFile() throws {
@@ -28,7 +29,7 @@ struct TestUserDefaultsTests {
 
         TestUserDefaults.removeSuite(named: name)
 
-        try await Task.sleep(for: .seconds(1.5))
+        try await Task.sleep(seconds: 1.5)
         #expect(!FileManager.default.fileExists(atPath: fileURL.path))
     }
 }

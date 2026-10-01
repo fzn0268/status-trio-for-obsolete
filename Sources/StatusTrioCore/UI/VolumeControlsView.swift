@@ -89,10 +89,10 @@ struct VolumeControlsView: View {
             }
         }
         .onAppear(perform: { synchronizeVolume() })
-        .onChange(of: draftVolume) { _, newValue in
+        .onChange(of: draftVolume) { newValue in
             updateVolume(newValue)
         }
-        .onChange(of: volume.scalar) { _, _ in
+        .onChange(of: volume.scalar) { _ in
             guard !isAdjusting else { return }
             synchronizeVolume()
         }

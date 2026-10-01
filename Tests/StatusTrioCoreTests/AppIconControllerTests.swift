@@ -141,7 +141,7 @@ struct AppIconControllerTests {
         harness.publishDifferentSnapshot()
         // Let the snapshot debounce and the monitor's AsyncStream consumer
         // settle before asserting that a hidden Dock produced no render.
-        try await Task.sleep(for: .seconds(2))
+        try await Task.sleep(seconds: 2)
 
         #expect(harness.log.renderCount == 0)
     }
@@ -422,7 +422,7 @@ struct AppIconControllerTests {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if condition() { return }
-            try await Task.sleep(for: .milliseconds(5))
+            try await Task.sleep(seconds: 0.005)
         }
         Issue.record("The coalesced redraw did not run within \(timeout) seconds.")
     }
@@ -475,7 +475,7 @@ final class AppIconControllerHarness {
             batteryMonitor: battery,
             wifiMonitor: AppIconNoopWiFiMonitor(),
             volumeMonitor: AppIconNoopVolumeMonitor(),
-            refreshInterval: .seconds(60),
+            refreshInterval: 60,
             initialSnapshot: StatusSnapshot(
                 battery: initialBattery,
                 wifi: .placeholder,

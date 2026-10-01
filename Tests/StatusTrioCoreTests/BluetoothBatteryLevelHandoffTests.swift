@@ -145,7 +145,7 @@ final class BluetoothBatteryLevelHandoffTests: XCTestCase {
     }
 
     private func settle() async {
-        try? await Task.sleep(for: .milliseconds(150))
+        try? await Task.sleep(seconds: 0.15)
     }
 }
 

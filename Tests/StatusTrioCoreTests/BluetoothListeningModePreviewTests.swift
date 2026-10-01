@@ -42,26 +42,26 @@ final class BluetoothListeningModePreviewTests: XCTestCase {
             backend: backend,
             sleeper: ImmediateListeningModeSleeper(),
             retryAttempts: 1,
-            retryDelay: .milliseconds(1)
+            retryDelay: 0.001
         )
         let controller = BluetoothListeningModeController(
             hal: hal,
             endpointProvider: EmptyListeningModeEndpointProvider(),
-            failureClearDelay: .milliseconds(20),
-            previewSettleDelay: .milliseconds(10)
+            failureClearDelay: 0.02,
+            previewSettleDelay: 0.01
         )
         controller.previewMode = true
         return controller
     }
 
     private func waitUntil(
-        timeout: Duration = .seconds(2),
+        timeout: TimeInterval = 2,
         _ condition: @MainActor () -> Bool
     ) async {
-        let deadline = ContinuousClock.now.advanced(by: timeout)
-        while ContinuousClock.now < deadline {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(5))
+            try? await Task.sleep(seconds: 0.005)
         }
     }
 
@@ -95,13 +95,13 @@ final class BluetoothListeningModePreviewTests: XCTestCase {
             backend: FakeListeningModeBackend(),
             sleeper: ImmediateListeningModeSleeper(),
             retryAttempts: 1,
-            retryDelay: .milliseconds(1)
+            retryDelay: 0.001
         )
         let controller = BluetoothListeningModeController(
             hal: hal,
             endpointProvider: provider,
-            failureClearDelay: .milliseconds(20),
-            previewSettleDelay: .milliseconds(10)
+            failureClearDelay: 0.02,
+            previewSettleDelay: 0.01
         )
         controller.previewMode = true
         controller.refresh(devices: [connectedAirPods()])

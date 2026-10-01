@@ -312,7 +312,7 @@ private func renderBluetoothPane(
 private func waitForDevices(_ controller: BluetoothDeviceController) async {
     for _ in 0..<1_000 {
         if !controller.devices.isEmpty { return }
-        try? await Task.sleep(for: .milliseconds(2))
+        try? await Task.sleep(seconds: 0.002)
     }
 }
 

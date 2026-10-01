@@ -13,8 +13,8 @@ final class WiFiNetworkScanCadenceTests: XCTestCase {
         scanner: FakeWiFiNetworkScanner,
         clock: ManualScanClock = ManualScanClock(),
         minimumScanInterval: TimeInterval = 30,
-        periodicRefreshSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        periodicRefreshSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) -> WiFiNetworkController {
         WiFiNetworkController(
@@ -150,15 +150,15 @@ final class WiFiNetworkScanCadenceTests: XCTestCase {
 
         controller.activate(nameAccess: .authorized)
         await waitUntil { controller.state == .ready }
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
-        XCTAssertEqual(sleeper.durations.first, .seconds(30))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
+        XCTAssertEqual(sleeper.durations.first, 30)
 
         sleeper.releaseAll()
         await Task.yield()
         XCTAssertEqual(scanner.scanCount, 1, "the loop fired inside the interval")
 
         clock.advance(by: 30)
-        _ = await sleeper.waitForCallCount(2, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(2, timeout: 1)
         sleeper.releaseAll()
         await waitUntil { scanner.scanCount == 2 }
 
@@ -215,7 +215,7 @@ final class WiFiNetworkScanCadenceTests: XCTestCase {
 
         store.activateWiFiPanel()
         await waitUntil { scanner.scanCount == 1 }
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
         XCTAssertTrue(store.hasOpenPopoverPanel)
 
         store.closeWiFiDetails()
@@ -252,7 +252,7 @@ final class WiFiNetworkScanCadenceTests: XCTestCase {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<1_000 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTFail("Timed out waiting for the Wi-Fi network controller")
     }

@@ -94,7 +94,7 @@ final class FakeListeningModeBackend: BluetoothListeningModePropertyReading, @un
 /// A sleeper that returns instantly, so the sixteen-attempt read-back budget costs
 /// nothing in tests while still exercising every branch of the poll loop.
 struct ImmediateListeningModeSleeper: BluetoothListeningModeSleeping {
-    func sleep(for duration: Duration) async {}
+    func sleep(for duration: TimeInterval) async {}
 }
 
 final class BluetoothListeningModeHALTests: XCTestCase {
@@ -103,7 +103,7 @@ final class BluetoothListeningModeHALTests: XCTestCase {
     private func makeHAL(
         _ backend: FakeListeningModeBackend,
         attempts: Int = 16,
-        delay: Duration = .milliseconds(50)
+        delay: TimeInterval = 0.05
     ) -> BluetoothListeningModeHAL {
         BluetoothListeningModeHAL(
             backend: backend,

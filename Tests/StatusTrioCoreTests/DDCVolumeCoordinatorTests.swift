@@ -24,7 +24,7 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         let coordinator = DDCVolumeCoordinator(transport: transport, sleep: { try await clock.sleep($0) }) { updates.append($0) }
         coordinator.select(outputID: 93, uid: "DISPLAY-A")
         await waitUntil("initial read callback") { updates.contains { $0.scalar == 0.7 } }
-        await waitForClock(clock, .seconds(10), "closed poll timer")
+        await waitForClock(clock, 10, "closed poll timer")
 
         coordinator.setDisplayAsleep(true)
         let readsBeforeWake = transport.readCount
@@ -35,7 +35,7 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         coordinator.setDetailsVisible(true)
         let readsBeforeOpen = transport.readCount
         await waitUntil("open details immediate read") { transport.readCount > readsBeforeOpen }
-        await waitForClock(clock, .seconds(2), "visible poll timer")
+        await waitForClock(clock, 2, "visible poll timer")
 
         let resolutions = transport.resolveCount
         coordinator.topologyChanged()
@@ -50,7 +50,7 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         transport.failReads = 8
         let coordinator = DDCVolumeCoordinator(transport: transport, sleep: { try await clock.sleep($0) }) { _ in }
         coordinator.select(outputID: 93, uid: "DISPLAY-A")
-        for interval in [Duration.seconds(2), .seconds(4), .seconds(8), .seconds(16), .seconds(32), .seconds(60), .seconds(60)] {
+        for interval: TimeInterval in [2, 4, 8, 16, 32, 60, 60] {
             await waitForClock(clock, interval, "failed-read poll at \(interval)")
             let readsBefore = transport.readCount
             await clock.release(interval)
@@ -66,18 +66,18 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         transport.failReads = 3
         let coordinator = DDCVolumeCoordinator(transport: transport, sleep: { try await clock.sleep($0) }) { _ in }
         coordinator.select(outputID: 93, uid: "DISPLAY-A")
-        for interval in [Duration.seconds(2), .seconds(4)] {
+        for interval: TimeInterval in [2, 4] {
             await waitForClock(clock, interval, "failed poll at \(interval)")
             await clock.release(interval)
         }
         transport.reply = DDCVolumeReply(current: 40, maximum: 100)
-        await waitForClock(clock, .seconds(8), "third failed poll")
-        await clock.release(.seconds(8))
+        await waitForClock(clock, 8, "third failed poll")
+        await clock.release(8)
         await waitUntil("successful recovery read") { transport.readCount >= 4 }
-        await waitForClock(clock, .seconds(10), "success poll interval")
+        await waitForClock(clock, 10, "success poll interval")
         transport.reply = nil
-        await clock.release(.seconds(10))
-        await waitForClock(clock, .seconds(2), "backoff resets to two seconds after success")
+        await clock.release(10)
+        await waitForClock(clock, 2, "backoff resets to two seconds after success")
         coordinator.stop()
         await clock.cancelAll()
     }
@@ -92,9 +92,9 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         coordinator.setVolume(0.2)
         coordinator.setVolume(0.4)
         coordinator.setVolume(0.8)
-        await waitForClock(clock, .milliseconds(150), "150ms debounce timer")
+        await waitForClock(clock, 0.15, "150ms debounce timer")
         XCTAssertTrue(transport.writeValues.isEmpty, "No write should happen before the debounce clock advances")
-        await clock.release(.milliseconds(150))
+        await clock.release(0.15)
         await waitUntil("debounced write") { transport.writeValues == [80] }
         await waitUntil("post-write readback") { transport.readCount >= 2 }
         coordinator.stop()
@@ -120,7 +120,7 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         transport.reply = DDCVolumeReply(current: 20, maximum: 100)
         transport.blockNextRead()
         var updates: [DDCVolumeUpdate] = []
-        let coordinator = DDCVolumeCoordinator(transport: transport, readWatchdog: .milliseconds(20)) { updates.append($0) }
+        let coordinator = DDCVolumeCoordinator(transport: transport, readWatchdog: 0.02) { updates.append($0) }
         coordinator.select(outputID: 93, uid: "DISPLAY-A")
         await waitUntil("pre-sleep read is blocked") { transport.blockedReadCount == 1 }
         coordinator.setVolume(0.8)
@@ -187,12 +187,12 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         coordinator.select(outputID: 93, uid: "DISPLAY-A")
         await waitUntil("initial read") { transport.readCount == 1 }
         coordinator.setVolume(0.8)
-        await waitForClock(clock, .milliseconds(150), "pending debounce")
+        await waitForClock(clock, 0.15, "pending debounce")
         coordinator.setDisplayAsleep(true)
         coordinator.setDisplayAsleep(false)
         await waitUntil("canceled debounce task acknowledges completion") { debounceSettledCount == 1 }
         await waitUntil("wake read") { transport.readCount >= 2 }
-        await clock.advance(by: .milliseconds(150))
+        await clock.advance(by: 0.15)
         await coordinator.waitForWorkerIdle()
         XCTAssertTrue(transport.writeValues.isEmpty, "Advancing the canceled pre-sleep debounce after wake must not write")
         coordinator.stop()
@@ -208,7 +208,7 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
             var readCompletions: [UInt64] = []
             let coordinator = DDCVolumeCoordinator(
                 transport: transport,
-                readWatchdog: .seconds(30),
+                readWatchdog: 30,
                 onReadCompletion: { _, _, generation in readCompletions.append(generation) }
             ) { updates.append($0) }
             coordinator.select(outputID: 93, uid: "DISPLAY-A")
@@ -241,7 +241,7 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         let transport = FakeDDCTransport()
         transport.reply = DDCVolumeReply(current: 35, maximum: 100)
         var updates: [DDCVolumeUpdate] = []
-        let coordinator = DDCVolumeCoordinator(transport: transport, readWatchdog: .milliseconds(20)) { updates.append($0) }
+        let coordinator = DDCVolumeCoordinator(transport: transport, readWatchdog: 0.02) { updates.append($0) }
         coordinator.select(outputID: 93, uid: "DISPLAY-A")
         await waitUntil("first successful read") { updates.contains { $0.scalar == 0.35 } }
         transport.blockNextRead()
@@ -265,13 +265,13 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
         ) { _ in }
         coordinator.select(outputID: 93, uid: "DISPLAY-A")
         coordinator.setVolume(0.8)
-        let debounceStarted = await clock.waitForRecorded(.milliseconds(150))
+        let debounceStarted = await clock.waitForRecorded(0.15)
         XCTAssertTrue(debounceStarted, "Debounce timer must start before output switching")
         coordinator.select(outputID: 94, uid: "DISPLAY-B")
         await waitUntil("canceled output debounce acknowledgment") { debounceSettledCount == 1 }
-        let oldDebounceRemains = await clock.hasPending(.milliseconds(150))
+        let oldDebounceRemains = await clock.hasPending(0.15)
         XCTAssertFalse(oldDebounceRemains, "Selection must cancel the old output debounce")
-        await clock.advance(by: .milliseconds(150))
+        await clock.advance(by: 0.15)
         await coordinator.waitForWorkerIdle()
         XCTAssertTrue(transport.writeValues.isEmpty, "Advancing the settled old-output debounce must not write")
         coordinator.stop()
@@ -279,11 +279,11 @@ final class DDCVolumeCoordinatorTests: XCTestCase {
     }
 
     private func waitUntil(_ description: String, file: StaticString = #filePath, line: UInt = #line, _ predicate: @escaping @MainActor () -> Bool) async {
-        for _ in 0..<200 where !predicate() { try? await Task.sleep(for: .milliseconds(5)) }
+        for _ in 0..<200 where !predicate() { try? await Task.sleep(seconds: 0.005) }
         XCTAssertTrue(predicate(), "Timed out waiting for \(description)", file: file, line: line)
     }
 
-    private func waitForClock(_ clock: ManualDDCClock, _ duration: Duration, _ description: String, file: StaticString = #filePath, line: UInt = #line) async {
+    private func waitForClock(_ clock: ManualDDCClock, _ duration: TimeInterval, _ description: String, file: StaticString = #filePath, line: UInt = #line) async {
         let result = await clock.waitForPending(duration)
         XCTAssertTrue(result, "Timed out waiting for \(description)", file: file, line: line)
     }
@@ -366,14 +366,14 @@ private final class FakeDDCTransport: DDCVolumeTransport, @unchecked Sendable {
 private actor ManualDDCClock {
     private struct Entry {
         let id: UUID
-        let duration: Duration
+        let duration: TimeInterval
         let continuation: CheckedContinuation<Void, any Error>
     }
     private var entries: [Entry] = []
     private var cancelledBeforeRegistration = Set<UUID>()
-    private var recordedDurations: [Duration] = []
+    private var recordedDurations: [TimeInterval] = []
 
-    func sleep(_ duration: Duration) async throws {
+    func sleep(_ duration: TimeInterval) async throws {
         let id = UUID()
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
@@ -389,31 +389,31 @@ private actor ManualDDCClock {
         }
     }
 
-    func hasPending(_ duration: Duration) -> Bool { entries.contains(where: { $0.duration == duration }) }
+    func hasPending(_ duration: TimeInterval) -> Bool { entries.contains(where: { $0.duration == duration }) }
 
-    func waitForPending(_ duration: Duration) async -> Bool {
+    func waitForPending(_ duration: TimeInterval) async -> Bool {
         for _ in 0..<200 {
             if entries.contains(where: { $0.duration == duration }) { return true }
-            try? await Task.sleep(for: .milliseconds(5))
+            try? await Task.sleep(seconds: 0.005)
         }
         return entries.contains(where: { $0.duration == duration })
     }
 
-    var pendingDurations: [Duration] { entries.map(\.duration) }
-    var durations: [Duration] { recordedDurations }
-    func waitForRecorded(_ duration: Duration) async -> Bool {
+    var pendingDurations: [TimeInterval] { entries.map(\.duration) }
+    var durations: [TimeInterval] { recordedDurations }
+    func waitForRecorded(_ duration: TimeInterval) async -> Bool {
         for _ in 0..<200 {
             if recordedDurations.contains(duration) { return true }
-            try? await Task.sleep(for: .milliseconds(5))
+            try? await Task.sleep(seconds: 0.005)
         }
         return recordedDurations.contains(duration)
     }
 
-    func advance(by duration: Duration) {
+    func advance(by duration: TimeInterval) {
         release(duration)
     }
 
-    func release(_ duration: Duration) {
+    func release(_ duration: TimeInterval) {
         guard let index = entries.firstIndex(where: { $0.duration == duration }) else { return }
         entries.remove(at: index).continuation.resume()
     }

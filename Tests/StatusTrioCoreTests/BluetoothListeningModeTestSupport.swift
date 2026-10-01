@@ -95,7 +95,7 @@ extension BluetoothListeningModeController {
                 backend: CoreAudioBluetoothListeningModeBackend(),
                 sleeper: ImmediateListeningModeSleeper(),
                 retryAttempts: 1,
-                retryDelay: .milliseconds(1)
+                retryDelay: 0.001
             ),
             endpointProvider: EmptyListeningModeEndpointProvider(),
             listenerBackend: FakeListeningModeListenerBackend()

@@ -324,7 +324,7 @@ struct BluetoothPairedDeviceWorkerRefinementTests {
     private func waitForWorker(_ box: WorkerResultBox) async {
         for _ in 0..<500 {
             if box.value != nil { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         Issue.record("Timed out waiting for the profiler read")
     }

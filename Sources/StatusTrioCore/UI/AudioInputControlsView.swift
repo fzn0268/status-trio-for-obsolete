@@ -283,10 +283,10 @@ struct AudioInputControlsView: View {
             }
         }
         .onAppear(perform: { volumeDraft.receiveSystemScalar(status.scalar) })
-        .onChange(of: status.defaultDeviceID) { _, _ in
+        .onChange(of: status.defaultDeviceID) { _ in
             volumeDraft.resetForDevice(status.scalar)
         }
-        .onChange(of: status.scalar) { _, newScalar in
+        .onChange(of: status.scalar) { newScalar in
             volumeDraft.receiveSystemScalar(newScalar)
         }
     }

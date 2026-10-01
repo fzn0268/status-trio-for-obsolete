@@ -142,7 +142,7 @@ final class BluetoothNearbyBatteryLifecycleTests: XCTestCase {
 
         controller.releaseNearbyBatteryDevices("settings", keepingResults: true)
 
-        await waitUntil(timeout: .seconds(1)) { controller.nearbyBatteryDevices.isEmpty }
+        await waitUntil(timeout: 1) { controller.nearbyBatteryDevices.isEmpty }
         XCTAssertTrue(controller.nearbyBatteryDevices.isEmpty)
         controller.deactivate()
     }
@@ -243,7 +243,7 @@ final class BluetoothNearbyBatteryLifecycleTests: XCTestCase {
         await waitUntil { controller.nearbyBatteryDevices.count == 1 }
         XCTAssertEqual(controller.nearbyBatteryDevices.count, 1)
 
-        await waitUntil(timeout: .seconds(1)) { controller.nearbyBatteryDevices.isEmpty }
+        await waitUntil(timeout: 1) { controller.nearbyBatteryDevices.isEmpty }
 
         XCTAssertTrue(controller.nearbyBatteryDevices.isEmpty)
         controller.deactivate()
@@ -279,7 +279,7 @@ final class BluetoothNearbyBatteryLifecycleTests: XCTestCase {
             "a partial scan must retain another still-fresh cached reading"
         )
 
-        await waitUntil(timeout: .seconds(2)) {
+        await waitUntil(timeout: 2) {
             controller.nearbyBatteryDevices.count == 1
                 && controller.nearbyBatteryDevices.first?.id == first.id
                 && controller.nearbyBatteryDevices.first?.batteryLevel == 70
@@ -334,11 +334,11 @@ final class BluetoothNearbyBatteryLifecycleTests: XCTestCase {
     }
 
     private func waitUntil(
-        timeout: Duration = .seconds(1),
+        timeout: TimeInterval = 1,
         condition: () -> Bool
     ) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition(), ContinuousClock.now < deadline {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition(), Date() < deadline {
             await Task.yield()
         }
         XCTAssertTrue(condition(), "Timed out waiting for Nearby scanner state")

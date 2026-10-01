@@ -60,7 +60,7 @@ final class BatteryDetailsLayoutTests: XCTestCase {
         hosting.frame = NSRect(origin: .zero, size: hosting.fittingSize)
         hosting.layoutSubtreeIfNeeded()
         // Allow SwiftUI's appearance task and the serial reader to publish the fixture.
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(seconds: 0.05)
         let size = hosting.fittingSize
         hosting.frame = NSRect(origin: .zero, size: size)
         hosting.layoutSubtreeIfNeeded()

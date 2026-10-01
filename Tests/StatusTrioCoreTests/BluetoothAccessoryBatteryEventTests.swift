@@ -23,7 +23,7 @@ final class BluetoothAccessoryBatteryEventTests: XCTestCase {
             notificationCenter: NotificationCenter(),
             workspaceNotificationCenter: NotificationCenter(),
             accessoryBatteryEvents: events,
-            accessoryBatteryEventDebounceInterval: .seconds(3),
+            accessoryBatteryEventDebounceInterval: 3,
             accessoryBatteryEventDebounceSleep: { duration in await sleeper.sleep(duration) }
         )
 
@@ -42,10 +42,10 @@ final class BluetoothAccessoryBatteryEventTests: XCTestCase {
         events.emit()
         events.emit()
         events.emit()
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
         XCTAssertEqual(
             sleeper.durations.first,
-            .seconds(3),
+            3,
             "an accessory battery notification must hold the read for its own longer interval"
         )
         XCTAssertEqual(reader.readCount, 1, "the debounce must hold the read until it fires")
@@ -275,7 +275,7 @@ final class BluetoothAccessoryBatteryEventTests: XCTestCase {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<1_000 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTFail("Timed out waiting for the Bluetooth controller")
     }

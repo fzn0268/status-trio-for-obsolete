@@ -74,13 +74,13 @@ struct SystemIconAppearanceMonitorTests {
 
         let clearTheme = SystemIconAppearanceTheme(style: .clear, appearance: .dark)
         theme = clearTheme
-        try await Task.sleep(for: .milliseconds(600))
+        try await Task.sleep(seconds: 0.6)
 
         #expect(reported == [clearTheme])
 
         monitor.stop()
         theme = SystemIconAppearanceTheme(style: .tinted, appearance: .dark)
-        try await Task.sleep(for: .milliseconds(300))
+        try await Task.sleep(seconds: 0.3)
         #expect(reported == [clearTheme])
     }
 }

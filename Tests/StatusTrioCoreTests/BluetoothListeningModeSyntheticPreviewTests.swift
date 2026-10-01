@@ -29,13 +29,13 @@ final class BluetoothListeningModeSyntheticPreviewTests: XCTestCase {
             backend: FakeListeningModeBackend(),
             sleeper: ImmediateListeningModeSleeper(),
             retryAttempts: 1,
-            retryDelay: .milliseconds(1)
+            retryDelay: 0.001
         )
         let controller = BluetoothListeningModeController(
             hal: hal,
             endpointProvider: EmptyListeningModeEndpointProvider(),
-            failureClearDelay: .milliseconds(20),
-            previewSettleDelay: .milliseconds(10)
+            failureClearDelay: 0.02,
+            previewSettleDelay: 0.01
         )
         controller.previewMode = true
         return controller

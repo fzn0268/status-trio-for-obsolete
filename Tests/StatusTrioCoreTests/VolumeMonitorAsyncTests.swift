@@ -154,7 +154,7 @@ final class VolumeMonitorAsyncTests: XCTestCase {
         let monitor = makeMonitor(reader: reader, events: events, sleeper: sleeper)
         monitor.start()
         events.defaultDeviceChanged?()
-        let debounceStarted = await sleeper.waitForCallCount(1, timeout: .seconds(5))
+        let debounceStarted = await sleeper.waitForCallCount(1, timeout: 5)
         XCTAssertTrue(debounceStarted, "The device change must schedule a debounced refresh")
         monitor.setDetailsVisible(false)
         monitor.setDetailsVisible(true)
@@ -186,7 +186,7 @@ final class VolumeMonitorAsyncTests: XCTestCase {
             case .toggleMute: monitor.toggleMute()
             case .selectDevice: monitor.selectOutputDevice(84)
             }
-            let debounceStarted = await sleeper.waitForCallCount(1, timeout: .seconds(5))
+            let debounceStarted = await sleeper.waitForCallCount(1, timeout: 5)
             XCTAssertTrue(debounceStarted, "The command must schedule a debounced refresh")
             reader.complete(reading(scalar: 0.2, devices: [device]))
             XCTAssertEqual(reader.requests, [true], "The debounce timer owns the follow-up")
@@ -228,7 +228,7 @@ final class VolumeMonitorAsyncTests: XCTestCase {
         _ = await iterator.next()
 
         events.volumeChanged?()
-        let levelDebounce = await sleeper.waitForCallCount(1, timeout: .seconds(5))
+        let levelDebounce = await sleeper.waitForCallCount(1, timeout: 5)
         XCTAssertTrue(levelDebounce, "The level event must schedule a debounced refresh")
         let levelRead = expectation(description: "level read starts")
         reader.onRead = { levelRead.fulfill() }
@@ -238,7 +238,7 @@ final class VolumeMonitorAsyncTests: XCTestCase {
         XCTAssertEqual(reader.requests, [true, false], "Level updates reuse the cached list")
 
         events.volumeChanged?()
-        let upgradeDebounce = await sleeper.waitForCallCount(2, timeout: .seconds(5))
+        let upgradeDebounce = await sleeper.waitForCallCount(2, timeout: 5)
         XCTAssertTrue(upgradeDebounce, "The second level event must schedule a debounced refresh")
         monitor.refresh()
         XCTAssertEqual(reader.requests, [true, false])
@@ -274,7 +274,7 @@ final class VolumeMonitorAsyncTests: XCTestCase {
         // otherwise the monitor stays latched and never publishes again.
         let retry = expectation(description: "retry read starts")
         reader.onRead = { retry.fulfill() }
-        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: .seconds(5))
+        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: 5)
         XCTAssertTrue(watchdogArmed, "The monitor must arm the read watchdog")
         timeoutSleeper.releaseAll()
         await fulfillment(of: [retry], timeout: 5)
@@ -297,7 +297,7 @@ final class VolumeMonitorAsyncTests: XCTestCase {
 
         let retry = expectation(description: "retry read starts")
         reader.onRead = { retry.fulfill() }
-        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: .seconds(5))
+        let watchdogArmed = await timeoutSleeper.waitForCallCount(1, timeout: 5)
         XCTAssertTrue(watchdogArmed, "The monitor must arm the read watchdog")
         timeoutSleeper.releaseAll()
         await fulfillment(of: [retry], timeout: 5)
@@ -338,7 +338,7 @@ final class VolumeMonitorAsyncTests: XCTestCase {
         controller: RecordingAudioCommands? = nil,
         sleeper: ManualEventSleeper = ManualEventSleeper(),
         timeoutSleeper: ManualEventSleeper = ManualEventSleeper(),
-        readTimeout: Duration = .seconds(5)
+        readTimeout: TimeInterval = 5
     ) -> VolumeMonitor {
         VolumeMonitor(
             statusReader: reader,

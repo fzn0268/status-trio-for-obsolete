@@ -23,7 +23,7 @@ final class MainMenuControllerTests: XCTestCase {
         )
 
         environment.localization.setPreference(.language(.simplifiedChinese))
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(seconds: 0.1)
 
         XCTAssertEqual(
             try appMenuTitles(),

@@ -13,11 +13,11 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         reader: any BluetoothPairedDeviceReading,
         stateMonitor: AvailableBluetoothStateMonitor = AvailableBluetoothStateMonitor(),
         connectionEvents: (any BluetoothConnectionEventMonitoring)? = nil,
-        safetyNetSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        safetyNetSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         },
-        readTimeoutSleep: @escaping @Sendable (Duration) async throws -> Void = {
-            try await Task.sleep(for: $0)
+        readTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
+            try await Task.sleep(seconds: $0)
         }
     ) -> BluetoothDeviceController {
         BluetoothDeviceController(
@@ -35,7 +35,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
     /// Declares the outstanding read stuck: waits for the injected watchdog
     /// timer to be armed, then lets it fire. No test ever waits on real time.
     private func releaseWatchdogTimeout(_ sleeper: ManualEventSleeper, armNumber: Int) async {
-        let armed = await sleeper.waitForCallCount(armNumber, timeout: .seconds(1))
+        let armed = await sleeper.waitForCallCount(armNumber, timeout: 1)
         XCTAssertTrue(armed, "the controller must arm the read watchdog")
         sleeper.releaseAll()
     }
@@ -173,7 +173,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         )
         controller.activate()
         await waitUntil { reader.readCount == 1 }
-        let armed = await timeoutSleeper.waitForCallCount(1, timeout: .seconds(1))
+        let armed = await timeoutSleeper.waitForCallCount(1, timeout: 1)
         XCTAssertTrue(armed, "the controller must arm a read watchdog")
 
         reader.complete(.success([
@@ -240,19 +240,19 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         // The first timeout doubles the wait for the next read.
         await releaseWatchdogTimeout(timeoutSleeper, armNumber: 1)
         await waitUntil { reader.readCount == 2 }
-        let secondArmed = await timeoutSleeper.waitForCallCount(2, timeout: .seconds(1))
+        let secondArmed = await timeoutSleeper.waitForCallCount(2, timeout: 1)
         XCTAssertTrue(secondArmed, "the retried read must arm the watchdog")
-        XCTAssertEqual(timeoutSleeper.durations[1], .seconds(10), "a timeout must back off")
+        XCTAssertEqual(timeoutSleeper.durations[1], 10, "a timeout must back off")
 
         controller.deactivate()
         controller.activate()
         await waitUntil { reader.readCount == 3 }
-        let thirdArmed = await timeoutSleeper.waitForCallCount(3, timeout: .seconds(1))
+        let thirdArmed = await timeoutSleeper.waitForCallCount(3, timeout: 1)
         XCTAssertTrue(thirdArmed, "the new session must arm the watchdog")
 
         XCTAssertEqual(
             timeoutSleeper.durations[2],
-            .seconds(5),
+            5,
             "a new session must start from the base timeout, not the previous backoff"
         )
 
@@ -391,9 +391,9 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         XCTAssertFalse(controller.isSafetyNetPolling, "a poll started with nothing on screen")
 
         controller.holdVisibleSurface("bluetooth.popover")
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
         XCTAssertTrue(controller.isSafetyNetPolling)
-        XCTAssertEqual(sleeper.durations.first, .seconds(30))
+        XCTAssertEqual(sleeper.durations.first, 30)
 
         sleeper.releaseAll()
         await waitUntil { reader.readCount == 2 }
@@ -487,7 +487,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         controller.activate()
         await waitUntil { reader.readCount == 1 }
         controller.holdVisibleSurface("bluetooth.popover")
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
 
         // Stop and restart inside one turn, before the cancelled task's `defer`.
         controller.releaseVisibleSurface("bluetooth.popover")
@@ -496,7 +496,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
 
         // Let the replacement reach its own sleep, then release both so the
         // superseded task runs through to its `defer`.
-        _ = await sleeper.waitForCallCount(2, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(2, timeout: 1)
         sleeper.releaseAll()
         await waitUntil { reader.readCount >= 3 }
         await settle()
@@ -633,7 +633,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         notifications.post(name: NSWorkspace.didWakeNotification, object: nil)
         // The removed blocks would be delivered through the main queue, so give
         // them a real window to arrive before asserting nothing happened.
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(seconds: 0.05)
         XCTAssertEqual(monitor.startCount, 1, "a removed observer fired after deactivate")
     }
 
@@ -701,7 +701,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         )
         controller?.activate()
         controller?.holdVisibleSurface("bluetooth.popover")
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
 
         controller = nil
         sleeper.releaseAll()
@@ -727,7 +727,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
             notificationCenter: NotificationCenter(),
             workspaceNotificationCenter: NotificationCenter(),
             connectionEvents: events,
-            connectionEventDebounceInterval: .milliseconds(750),
+            connectionEventDebounceInterval: 0.75,
             connectionEventDebounceSleep: { duration in await sleeper.sleep(duration) }
         )
         controller.activate()
@@ -736,7 +736,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         await waitUntil { events.startCount == 1 }
 
         events.emit()
-        _ = await sleeper.waitForCallCount(1, timeout: .seconds(1))
+        _ = await sleeper.waitForCallCount(1, timeout: 1)
         let readsBeforeTheDebounceFired = reader.readCount
 
         controller.releaseVisibleSurface("bluetooth.popover")
@@ -785,7 +785,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         notifications.post(name: NSWorkspace.didWakeNotification, object: nil)
         // The block is delivered through the main queue, so give it a real
         // window to arrive before asserting that nothing was delivered.
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(seconds: 0.05)
         XCTAssertEqual(activations.value, 1, "a removed observer still fired")
         XCTAssertEqual(wakes.value, 1, "a removed observer still fired")
     }
@@ -813,7 +813,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
         notifications.post(name: NSWorkspace.didWakeNotification, object: nil)
         // The block is delivered through the main queue, so give it a real
         // window to arrive before asserting that nothing was delivered.
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(seconds: 0.05)
         XCTAssertEqual(activations.value, 0, "a released bag must remove its observers")
         XCTAssertEqual(wakes.value, 0, "a released bag must remove its observers")
     }
@@ -821,7 +821,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<1_000 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         XCTFail("Timed out waiting for the Bluetooth controller")
     }
@@ -829,7 +829,7 @@ final class BluetoothPollingLifetimeTests: XCTestCase {
     /// Lets every main-actor task that is already runnable finish.
     private func settle() async {
         for _ in 0..<20 { await Task.yield() }
-        try? await Task.sleep(for: .milliseconds(20))
+        try? await Task.sleep(seconds: 0.02)
         for _ in 0..<20 { await Task.yield() }
     }
 }

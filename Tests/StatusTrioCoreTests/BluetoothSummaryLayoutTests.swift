@@ -674,9 +674,9 @@ final class BluetoothSummaryLayoutTests: XCTestCase {
         hosting.frame = NSRect(origin: .zero, size: hosting.fittingSize)
         hosting.layoutSubtreeIfNeeded()
         // Let the controller publish the fixture and the row settle.
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(seconds: 0.05)
         nearbyScanner.publish(nearbyDevices)
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(seconds: 0.05)
         let size = hosting.fittingSize
         hosting.frame = NSRect(origin: .zero, size: size)
         hosting.layoutSubtreeIfNeeded()

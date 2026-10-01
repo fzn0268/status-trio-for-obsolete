@@ -269,7 +269,7 @@ struct BluetoothPairedDeviceListTests {
     private func waitUntil(_ condition: () -> Bool) async {
         for _ in 0..<500 {
             if condition() { return }
-            try? await Task.sleep(for: .milliseconds(2))
+            try? await Task.sleep(seconds: 0.002)
         }
         Issue.record("Timed out waiting for the profiler read")
     }
