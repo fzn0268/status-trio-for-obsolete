@@ -399,9 +399,12 @@ enum StatusIconRenderer {
     ) {
         let gapContent = StatusMappings.batteryGapContent(battery, options: options)
         let hasTopGap = gapContent != .empty
-        let topGapWidth = switch gapContent {
-        case .bolt, .plug: StatusIconGeometry.batteryChargingBoltTopGapWidth
-        case .percentage, .empty: StatusIconGeometry.batteryValueTopGapWidth
+        let topGapWidth: CGFloat
+        switch gapContent {
+        case .bolt, .plug:
+            topGapWidth = StatusIconGeometry.batteryChargingBoltTopGapWidth
+        case .percentage, .empty:
+            topGapWidth = StatusIconGeometry.batteryValueTopGapWidth
         }
 
         context.setLineWidth(8 * CGFloat(options.ringStrokeScale))
@@ -1075,11 +1078,16 @@ enum StatusIconRenderer {
                 in: context
             )
         } else {
-            let variableValue: Double = switch bars {
-            case 3: 1.0
-            case 2: 0.66
-            case 1: 0.33
-            default: 0.0
+            let variableValue: Double
+            switch bars {
+            case 3:
+                variableValue = 1.0
+            case 2:
+                variableValue = 0.66
+            case 1:
+                variableValue = 0.33
+            default:
+                variableValue = 0.0
             }
             drawOfficialSymbol(
                 name: "wifi",

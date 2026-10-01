@@ -529,10 +529,10 @@ final class CoreAudioVolumeEventMonitor: VolumeEventMonitoring {
         let block: AudioObjectPropertyListenerBlock
     }
 
-    nonisolated(unsafe) private let client: any CoreAudioClient
+    private let client: any CoreAudioClient
     private let callbackQueue: DispatchQueue?
-    nonisolated(unsafe) private var defaultDeviceRegistration: ListenerRegistration?
-    nonisolated(unsafe) private var deviceRegistrations: [ListenerRegistration] = []
+    private var defaultDeviceRegistration: ListenerRegistration?
+    private var deviceRegistrations: [ListenerRegistration] = []
     private var registeredDeviceID: AudioDeviceID?
     private var deviceNeedsReconciliation = true
     private var onDefaultDeviceChange: (@MainActor @Sendable () -> Void)?

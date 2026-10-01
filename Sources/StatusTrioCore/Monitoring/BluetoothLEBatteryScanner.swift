@@ -180,10 +180,10 @@ final class CoreBluetoothLEBatteryScanner: NSObject,
     /// These references are mutated only on the main actor. `deinit` is
     /// nonisolated, so it reads them only to cancel tasks and hand CoreBluetooth
     /// cleanup back to the main actor, following the controller's teardown rule.
-    nonisolated(unsafe) private var centralManager: CBCentralManager?
-    nonisolated(unsafe) private var sessions: [UUID: PeripheralSession] = [:]
-    nonisolated(unsafe) private var scanWindowTask: Task<Void, Never>?
-    nonisolated(unsafe) private var automaticRefreshTask: Task<Void, Never>?
+    private var centralManager: CBCentralManager?
+    private var sessions: [UUID: PeripheralSession] = [:]
+    private var scanWindowTask: Task<Void, Never>?
+    private var automaticRefreshTask: Task<Void, Never>?
 
     private var policy = BluetoothLEBatteryScanPolicy()
     private var candidatePeripherals: [UUID: CBPeripheral] = [:]

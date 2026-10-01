@@ -399,16 +399,17 @@ private struct StatusIconPartShape: Shape {
     let volumeDisplayStyle: VolumeDisplayStyle
 
     func path(in rect: CGRect) -> Path {
-        let source: Path = switch part {
+        let source: Path
+        switch part {
         case .battery:
-            Path(StatusIconGeometry.batteryTrack())
+            source = Path(StatusIconGeometry.batteryTrack())
         case .network:
-            Path(
+            source = Path(
                 roundedRect: CGRect(x: 31.5, y: 34.4, width: 56, height: 56),
                 cornerRadius: 17
             )
         case .volume:
-            volumePath
+            source = volumePath
         }
 
         let scale = min(

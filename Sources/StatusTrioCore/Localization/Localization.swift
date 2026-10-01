@@ -35,7 +35,7 @@ final class Localization: ObservableObject {
     private var preferredLanguages: [String]
     private let bundleProvider: (AppLanguage) -> Bundle?
     private var bundleCache: [AppLanguage: Bundle] = [:]
-    nonisolated(unsafe) private var localeObserver: NSObjectProtocol?
+    private var localeObserver: NSObjectProtocol?
 
     init(
         defaults: UserDefaults = .standard,

@@ -95,7 +95,7 @@ final class NetworkConnectionMonitor: NetworkConnectionMonitoring {
 
     let updates: AsyncStream<NetworkPathSnapshot>
 
-    nonisolated(unsafe) private let pathMonitor: any NetworkPathMonitoring
+    private let pathMonitor: any NetworkPathMonitoring
     private let queue = DispatchQueue(label: "StatusTrio.NetworkConnection")
     private let continuation: AsyncStream<NetworkPathSnapshot>.Continuation
     private var lifecycle = Lifecycle.idle

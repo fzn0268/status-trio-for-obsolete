@@ -102,9 +102,9 @@ final class BatteryMonitor: BatteryMonitoring {
     private let reader: any BatteryReadingProviding
     private let lowPowerModeProvider: () -> Bool
     private let iopsRunLoopSourceFactory: IOPSRunLoopSourceFactory
-    nonisolated(unsafe) private var runLoopSource: CFRunLoopSource?
-    nonisolated(unsafe) private var lowPowerObserver: NSObjectProtocol?
-    nonisolated(unsafe) private var callbackContext: Unmanaged<BatteryCallbackContext>?
+    private var runLoopSource: CFRunLoopSource?
+    private var lowPowerObserver: NSObjectProtocol?
+    private var callbackContext: Unmanaged<BatteryCallbackContext>?
     private var lifecycle = Lifecycle.idle
 
     init(

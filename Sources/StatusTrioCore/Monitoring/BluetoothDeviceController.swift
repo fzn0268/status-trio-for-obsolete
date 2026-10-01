@@ -341,16 +341,16 @@ final class BluetoothDeviceController: ObservableObject {
 
     private let worker: any BluetoothPairedDeviceReading
     private let appleBluetoothAudioDiagnosticReporter: AppleBluetoothAudioDiagnosticReporter
-    /// The state monitor is teardown-owned storage: `deinit` is nonisolated, so
-    /// it is held `nonisolated(unsafe)` for that one read. `BluetoothStateMonitoring`
+    /// The state monitor is teardown-owned storage: `deinit` is nonisolated and
+    /// reads it directly there. `BluetoothStateMonitoring`
     /// is `@MainActor`, and `stop()` runs on the main actor through the hop in
     /// `deinit` rather than being called off the queue CoreBluetooth was created on.
-    nonisolated(unsafe) private let stateMonitor: any BluetoothStateMonitoring
+    private let stateMonitor: any BluetoothStateMonitoring
     private let batteryReader: any BluetoothBatteryReading
     /// `deinit` is nonisolated, and the scanner has to be stopped on the main
     /// actor because its CoreBluetooth manager and delegates were created there.
     /// This is teardown-owned storage, captured by the main-actor hop below.
-    nonisolated(unsafe) private let nearbyBatteryScanner: (any BluetoothLEBatteryScanning)?
+    private let nearbyBatteryScanner: (any BluetoothLEBatteryScanning)?
     private let nearbyBatteryCacheLifetime: TimeInterval
     /// The second battery source, read only for the devices the paired-device
     /// report carries no level for. Optional so a test can build a controller
@@ -370,12 +370,12 @@ final class BluetoothDeviceController: ObservableObject {
     /// The connect/disconnect source for the safety net. Optional so a test can
     /// build a controller that never touches the system's Bluetooth service.
     /// Teardown-owned storage: `deinit` is nonisolated and reads it directly.
-    nonisolated(unsafe)    private let connectionEvents: (any BluetoothConnectionEventMonitoring)?
+    private let connectionEvents: (any BluetoothConnectionEventMonitoring)?
     /// The accessory battery-change source. Optional so a test can build a
     /// controller that never touches the system's notification centre, and
     /// teardown-owned storage for the same reason the connect source is:
     /// `deinit` is nonisolated and reads it directly.
-    nonisolated(unsafe) private let accessoryBatteryEvents: (any BluetoothAccessoryBatteryEventMonitoring)?
+    private let accessoryBatteryEvents: (any BluetoothAccessoryBatteryEventMonitoring)?
     private let connectionEventDebounceInterval: TimeInterval
     private let connectionEventDebounceSleep: @Sendable (TimeInterval) async throws -> Void
     /// The accessory battery debounce. It is longer than the connect/disconnect
@@ -1280,10 +1280,14 @@ final class BluetoothDeviceController: ObservableObject {
         for device in devices {
             let address = BluetoothBatteryReader.normalizedAddress(device.id)
             guard let state = deviceActionStates[address] else { continue }
-            let reachedTarget = switch state {
-            case .connecting: device.isConnected
-            case .disconnecting: !device.isConnected
-            case .failed: false
+            let reachedTarget: Bool
+            switch state {
+            case .connecting:
+                reachedTarget = device.isConnected
+            case .disconnecting:
+                reachedTarget = !device.isConnected
+            case .failed:
+                reachedTarget = false
             }
             if reachedTarget {
                 finishDeviceAction(address: address)

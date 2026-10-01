@@ -202,34 +202,34 @@ private final class CoreWLANNetworkWorker: @unchecked Sendable, WiFiNetworkScann
 
     private func displayBand(_ rawValue: Int?) -> String? {
         guard let rawValue else { return nil }
-        return switch rawValue {
-        case 1: "2.4 GHz"
-        case 2: "5 GHz"
-        case 3: "6 GHz"
-        default: nil
+        switch rawValue {
+        case 1: return "2.4 GHz"
+        case 2: return "5 GHz"
+        case 3: return "6 GHz"
+        default: return nil
         }
     }
 
     private func displayChannelWidth(_ rawValue: Int?) -> String? {
         guard let rawValue else { return nil }
-        return switch rawValue {
-        case 1: "20 MHz"
-        case 2: "40 MHz"
-        case 3: "80 MHz"
-        case 4: "160 MHz"
-        default: nil
+        switch rawValue {
+        case 1: return "20 MHz"
+        case 2: return "40 MHz"
+        case 3: return "80 MHz"
+        case 4: return "160 MHz"
+        default: return nil
         }
     }
 
     private func displayPHY(_ rawValue: Int) -> String? {
-        return switch rawValue {
-        case 1: "802.11a"
-        case 2: "802.11b"
-        case 3: "802.11g"
-        case 4: "802.11n"
-        case 5: "802.11ac"
-        case 6: "802.11ax"
-        default: nil
+        switch rawValue {
+        case 1: return "802.11a"
+        case 2: return "802.11b"
+        case 3: return "802.11g"
+        case 4: return "802.11n"
+        case 5: return "802.11ac"
+        case 6: return "802.11ax"
+        default: return nil
         }
     }
 }

@@ -308,8 +308,8 @@ final class WiFiMonitor: NSObject, WiFiMonitoring, CWEventDelegate {
     private let continuation: AsyncStream<WiFiStatus>.Continuation
     private let statusReader: any WiFiStatusReadingProviding
     private let nameAuthorizer: any WiFiNameAuthorizing
-    nonisolated(unsafe) private let eventMonitor: any WiFiEventMonitoring
-    nonisolated(unsafe) private let pathMonitor: any WiFiPathMonitoring
+    private let eventMonitor: any WiFiEventMonitoring
+    private let pathMonitor: any WiFiPathMonitoring
     private let pathQueue = DispatchQueue(label: "StatusTrio.WiFiPath")
     private let staleInterval: TimeInterval
     private let now: () -> Date

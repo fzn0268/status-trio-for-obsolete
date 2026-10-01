@@ -106,8 +106,8 @@ final class VPNMonitor: VPNMonitoring {
 
     private(set) var updates: AsyncStream<VPNStatus>
 
-    nonisolated(unsafe) private let reader: any VPNReading
-    nonisolated(unsafe) private let observer: any NetworkChangeObserving
+    private let reader: any VPNReading
+    private let observer: any NetworkChangeObserving
     private let queue = DispatchQueue(label: "StatusTrio.VPN")
     private var continuation: AsyncStream<VPNStatus>.Continuation
     private var lifecycle = Lifecycle.idle

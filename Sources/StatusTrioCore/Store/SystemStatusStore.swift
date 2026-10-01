@@ -87,16 +87,16 @@ final class SystemStatusStore: ObservableObject {
     private var wifiNameResolutionTask: Task<Void, Never>?
     /// Teardown-owned notification registrations.
     ///
-    /// `deinit` is nonisolated, so these are `nonisolated(unsafe)`: they are only
+    /// `deinit` is nonisolated and reads them directly: they are only
     /// ever mutated on the main actor while the store is alive, and the one
     /// operation the teardown performs on them —
     /// `NotificationCenter.removeObserver(_:)` — is safe to call from any
     /// thread. This mirrors the existing `wakeObserver` pattern and avoids
     /// `MainActor.assumeIsolated`, which is a fatal assertion rather than a hop
     /// if the last reference is released off the main thread.
-    nonisolated(unsafe) private var wakeObserver: NSObjectProtocol?
-    nonisolated(unsafe) private var displaySleepObserver: NSObjectProtocol?
-    nonisolated(unsafe) private var displayWakeObserver: NSObjectProtocol?
+    private var wakeObserver: NSObjectProtocol?
+    private var displaySleepObserver: NSObjectProtocol?
+    private var displayWakeObserver: NSObjectProtocol?
     private var lastPublishedSnapshot: StatusSnapshot?
     private var hasStarted = false
     private var hasStopped = false
