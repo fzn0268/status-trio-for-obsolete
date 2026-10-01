@@ -100,6 +100,30 @@ final class DDCDisplayTransportTests: XCTestCase {
         ))
     }
 
+    func testIntelFramebufferMatchesTheAudioDeviceUIDByEDIDIdentity() {
+        // A DELL S2316H EDID header: manufacturer 0xAC10, product 0xD07E, serial 0x30393953.
+        var edid = [UInt8](repeating: 0, count: 128)
+        edid[8] = 0x10
+        edid[9] = 0xAC
+        edid[10] = 0x7E
+        edid[11] = 0xD0
+        edid[12] = 0x53
+        edid[13] = 0x39
+        edid[14] = 0x39
+        edid[15] = 0x30
+
+        XCTAssertEqual(DDCDisplayTransport.edidIdentityBlock(edid), "{AC10-D07E-30393953}")
+        XCTAssertTrue(DDCDisplayTransport.audioUID(
+            "AppleGFXHDAEngineOutputDP:10001:0:{AC10-D07E-30393953}",
+            matchesEDID: edid
+        ))
+        XCTAssertFalse(DDCDisplayTransport.audioUID(
+            "AppleGFXHDAEngineOutputDP:10001:0:{AC10-D07E-00000001}",
+            matchesEDID: edid
+        ))
+        XCTAssertNil(DDCDisplayTransport.edidIdentityBlock([UInt8](repeating: 0, count: 15)))
+    }
+
     func testInvalidReplyIsRejectedByDecoder() {
         let transport = InvalidReplyTransport()
         XCTAssertNil(transport.read(DDCDisplayTarget(uid: "display", service: nil)))
