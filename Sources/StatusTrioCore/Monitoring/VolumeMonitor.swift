@@ -541,7 +541,7 @@ final class CoreAudioVolumeEventMonitor: VolumeEventMonitoring {
     private var isStopped = false
 
     init(
-        client: any CoreAudioClient = CoreAudioSystemClient(),
+        client: any CoreAudioClient = assumingMainActor { CoreAudioSystemClient() },
         callbackQueue: DispatchQueue? = .main
     ) {
         self.client = client
@@ -852,11 +852,11 @@ final class VolumeMonitor: VolumeMonitoring, VolumeControlling {
     private var displayAsleep = false
 
     init(
-        statusReader: any AudioStatusReadingProviding = CoreAudioStatusReader(),
-        appleBluetoothAudioDiagnosticReporter: AppleBluetoothAudioDiagnosticReporter = AppleBluetoothAudioDiagnosticReporter(),
-        eventMonitor: any VolumeEventMonitoring = CoreAudioVolumeEventMonitor(),
+        statusReader: any AudioStatusReadingProviding = assumingMainActor { CoreAudioStatusReader() },
+        appleBluetoothAudioDiagnosticReporter: AppleBluetoothAudioDiagnosticReporter = assumingMainActor { AppleBluetoothAudioDiagnosticReporter() },
+        eventMonitor: any VolumeEventMonitoring = assumingMainActor { CoreAudioVolumeEventMonitor() },
         outputController: (any AudioOutputControlling)? = nil,
-        ddcTransport: any DDCVolumeTransport = DDCDisplayTransport(),
+        ddcTransport: any DDCVolumeTransport = assumingMainActor { DDCDisplayTransport() },
         ddcCoordinator: DDCVolumeCoordinator? = nil,
         refreshDebounceInterval: TimeInterval = 0.15,
         refreshDebounceSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
@@ -884,7 +884,7 @@ final class VolumeMonitor: VolumeMonitoring, VolumeControlling {
     }
 
     deinit {
-        MainActor.assumeIsolated {
+        assumingMainActor {
             scheduledRefreshTask?.cancel()
             if let screenObserver { NotificationCenter.default.removeObserver(screenObserver) }
             if lifecycle != .stopped {

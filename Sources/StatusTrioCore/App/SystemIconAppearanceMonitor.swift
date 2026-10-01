@@ -43,7 +43,7 @@ final class SystemIconAppearanceMonitor {
             withTimeInterval: pollingInterval,
             repeats: true
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
+            assumingMainActor {
                 self?.refresh()
             }
         }
@@ -70,7 +70,7 @@ final class SystemIconAppearanceMonitor {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
+            assumingMainActor {
                 self?.refresh()
             }
         })

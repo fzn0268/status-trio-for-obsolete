@@ -67,11 +67,14 @@ final class CoreAudioStatusReader: AudioStatusReadingProviding {
         let readSystem = readSystem
         currentQueue.async { [weak self] in
             let reading = readSystem(includeOutputDevices)
+            // Swift 5.7 will not let the nested Task read the weak `self` that
+            // this closure captured, so the optional is bound to a constant here.
+            let reader = self
             Task { @MainActor in
                 // Only the read on the current queue may clear the flag; a late
                 // completion from a retired queue must not.
-                if let self, generation == self.queueGeneration {
-                    self.hasOutstandingRead = false
+                if let reader, generation == reader.queueGeneration {
+                    reader.hasOutstandingRead = false
                 }
                 completion(reading)
             }

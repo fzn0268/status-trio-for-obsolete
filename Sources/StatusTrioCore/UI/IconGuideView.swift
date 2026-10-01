@@ -7,20 +7,20 @@ enum IconGuidePart: CaseIterable, Identifiable {
 
     var titleKey: LocalizationKey {
         switch self {
-        case .battery: .settingsPopupOrderBattery
+        case .battery: return .settingsPopupOrderBattery
         // The same name the popup section carries, and the one its own
         // explanation already uses: this part of the icon shows network status,
         // and its symbol changes with the connection type.
-        case .network: .settingsPopupOrderNetwork
-        case .volume: .settingsPopupOrderVolume
+        case .network: return .settingsPopupOrderNetwork
+        case .volume: return .settingsPopupOrderVolume
         }
     }
 
     func explanationKey(volumeStyle: VolumeDisplayStyle) -> LocalizationKey {
         switch self {
-        case .battery: .guideBattery
-        case .network: .guideNetwork
-        case .volume: volumeStyle == .dots ? .guideVolumeDots : .guideVolumeArc
+        case .battery: return .guideBattery
+        case .network: return .guideNetwork
+        case .volume: return volumeStyle == .dots ? .guideVolumeDots : .guideVolumeArc
         }
     }
 }
@@ -31,15 +31,15 @@ enum IconGuidePage: Equatable {
 
     var next: Self {
         switch self {
-        case .anatomy: .states
-        case .states: .states
+        case .anatomy: return .states
+        case .states: return .states
         }
     }
 
     var previous: Self {
         switch self {
-        case .anatomy: .anatomy
-        case .states: .anatomy
+        case .anatomy: return .anatomy
+        case .states: return .anatomy
         }
     }
 }
@@ -81,27 +81,27 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
 
     var volumeDisplayStyleOverride: VolumeDisplayStyle? {
         switch self {
-        case .charging: .dots
-        case .weakWiFi: .arc
-        case .bluetoothHeadphones: .dots
-        case .bluetoothAirPods: .dots
-        case .wifiVolumeTint: .dots
-        default: nil
+        case .charging: return .dots
+        case .weakWiFi: return .arc
+        case .bluetoothHeadphones: return .dots
+        case .bluetoothAirPods: return .dots
+        case .wifiVolumeTint: return .dots
+        default: return nil
         }
     }
 
     var titleKey: LocalizationKey {
         switch self {
-        case .charging: .guideStateCharging
-        case .lowBattery: .guideStateLowBattery
-        case .ethernet: .guideStateEthernet
-        case .noInternetMuted: .guideStateNoInternetMuted
-        case .hotspotLowPower: .guideStateHotspotLowPower
-        case .weakWiFi: .guideStateWeakWiFi
-        case .wifiOff: .guideStateWiFiOff
-        case .bluetoothHeadphones: .guideStateBluetoothHeadphones
-        case .bluetoothAirPods: .guideStateBluetoothAirPods
-        case .wifiVolumeTint: .guideStateWiFiVolumeTint
+        case .charging: return .guideStateCharging
+        case .lowBattery: return .guideStateLowBattery
+        case .ethernet: return .guideStateEthernet
+        case .noInternetMuted: return .guideStateNoInternetMuted
+        case .hotspotLowPower: return .guideStateHotspotLowPower
+        case .weakWiFi: return .guideStateWeakWiFi
+        case .wifiOff: return .guideStateWiFiOff
+        case .bluetoothHeadphones: return .guideStateBluetoothHeadphones
+        case .bluetoothAirPods: return .guideStateBluetoothAirPods
+        case .wifiVolumeTint: return .guideStateWiFiVolumeTint
         }
     }
 
@@ -119,21 +119,21 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
     ) -> BluetoothAudioIconOptions {
         switch self {
         case .bluetoothHeadphones, .bluetoothAirPods:
-            BluetoothAudioIconOptions(
+            return BluetoothAudioIconOptions(
                 replacesNetworkIcon: true,
                 usesVolumeColor: true,
                 prioritizesNetworkErrors: configured.prioritizesNetworkErrors,
                 symbolScale: configured.symbolScale
             )
         case .wifiVolumeTint:
-            BluetoothAudioIconOptions(
+            return BluetoothAudioIconOptions(
                 replacesNetworkIcon: false,
                 usesVolumeColor: true,
                 prioritizesNetworkErrors: configured.prioritizesNetworkErrors,
                 symbolScale: configured.symbolScale
             )
         default:
-            configured
+            return configured
         }
     }
 
@@ -163,16 +163,16 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
     /// volume row to take the device colour.
     var exampleDevice: AudioOutputDevice? {
         switch self {
-        case .bluetoothHeadphones, .wifiVolumeTint: Self.bluetoothHeadphonesExampleDevice
-        case .bluetoothAirPods: Self.airPodsExampleDevice
-        default: nil
+        case .bluetoothHeadphones, .wifiVolumeTint: return Self.bluetoothHeadphonesExampleDevice
+        case .bluetoothAirPods: return Self.airPodsExampleDevice
+        default: return nil
         }
     }
 
     var status: MenuBarStatus {
         switch self {
         case .bluetoothHeadphones, .bluetoothAirPods, .wifiVolumeTint:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 82,
                     isPresent: true,
@@ -190,7 +190,7 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
                 )
             )
         case .charging:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 68,
                     isPresent: true,
@@ -207,7 +207,7 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
                 )
             )
         case .lowBattery:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 12,
                     isPresent: true,
@@ -224,7 +224,7 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
                 )
             )
         case .ethernet:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 100,
                     isPresent: true,
@@ -242,7 +242,7 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
                 )
             )
         case .noInternetMuted:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 74,
                     isPresent: true,
@@ -259,7 +259,7 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
                 )
             )
         case .hotspotLowPower:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 54,
                     isPresent: true,
@@ -276,7 +276,7 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
                 )
             )
         case .weakWiFi:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 78,
                     isPresent: true,
@@ -293,7 +293,7 @@ enum IconGuideState: String, CaseIterable, Identifiable, Sendable {
                 )
             )
         case .wifiOff:
-            MenuBarStatus(
+            return MenuBarStatus(
                 battery: BatteryStatus(
                     rawPercentage: 91,
                     isPresent: true,

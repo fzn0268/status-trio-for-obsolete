@@ -107,9 +107,9 @@ struct PopoverSectionView: View {
     private func scrollScopeLabel(_ scope: PopupVolumeScrollScope) -> String {
         switch scope {
         case .panel:
-            localization.string(.settingsPopupVolumeScrollScopePanel)
+            return localization.string(.settingsPopupVolumeScrollScopePanel)
         case .volumeControl:
-            localization.string(.settingsPopupVolumeScrollScopeVolumeControl)
+            return localization.string(.settingsPopupVolumeScrollScopeVolumeControl)
         }
     }
 

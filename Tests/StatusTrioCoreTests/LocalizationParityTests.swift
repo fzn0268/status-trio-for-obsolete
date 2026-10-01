@@ -19,11 +19,11 @@ final class LocalizationParityTests: XCTestCase {
         var description: String {
             switch self {
             case .unreadable(let url):
-                "cannot read \(url.path)"
+                return "cannot read \(url.path)"
             case .unparsableLine(let language, let line, let text):
-                "\(language).lproj line \(line) is not a key/value pair: \(text)"
+                return "\(language).lproj line \(line) is not a key/value pair: \(text)"
             case .duplicatedKey(let language, let key):
-                "\(language).lproj declares \(key) more than once"
+                return "\(language).lproj declares \(key) more than once"
             }
         }
     }

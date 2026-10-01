@@ -317,59 +317,59 @@ enum AudioOutputDeviceIcon {
     ) -> [String] {
         switch kind {
         case .airPodsPro:
-            ["airpods.pro", "airpodspro", "headphones"]
+            return ["airpods.pro", "airpodspro", "headphones"]
         case .airPodsProGen1:
-            ["airpods.pro.gen1", "airpods.pro", "airpodspro", "headphones"]
+            return ["airpods.pro.gen1", "airpods.pro", "airpodspro", "headphones"]
         case .airPodsProGen3:
-            ["airpods.pro.gen3", "airpods.pro", "airpodspro", "headphones"]
+            return ["airpods.pro.gen3", "airpods.pro", "airpodspro", "headphones"]
         case .airPods:
-            ["airpods", "headphones"]
+            return ["airpods", "headphones"]
         case .airPodsGen3:
-            ["airpods.gen3", "airpods", "headphones"]
+            return ["airpods.gen3", "airpods", "headphones"]
         case .airPodsGen4:
-            ["airpods.gen4", "airpods", "headphones"]
+            return ["airpods.gen4", "airpods", "headphones"]
         case .airPodsGen5:
-            ["airpods.gen5", "airpods.gen4", "airpods", "headphones"]
+            return ["airpods.gen5", "airpods.gen4", "airpods", "headphones"]
         case .airPodsMax:
-            ["airpodsmax", "airpods.max", "headphones"]
+            return ["airpodsmax", "airpods.max", "headphones"]
         case .beatsPill:
-            ["beats.pill", "beats.headphones", "headphones"]
+            return ["beats.pill", "beats.headphones", "headphones"]
         case .beatsSoloBuds:
-            ["beats.solobuds", "beats.studiobuds", "beats.headphones", "headphones"]
+            return ["beats.solobuds", "beats.studiobuds", "beats.headphones", "headphones"]
         case .beatsStudioBudsPlus:
-            ["beats.studiobuds.plus", "beats.studiobuds", "beats.headphones", "headphones"]
+            return ["beats.studiobuds.plus", "beats.studiobuds", "beats.headphones", "headphones"]
         case .beatsStudioBuds:
-            ["beats.studiobuds", "beats.headphones", "headphones"]
+            return ["beats.studiobuds", "beats.headphones", "headphones"]
         case .beatsFitPro:
-            ["beats.fit.pro", "beats.fitpro", "beats.headphones", "headphones"]
+            return ["beats.fit.pro", "beats.fitpro", "beats.headphones", "headphones"]
         case .beatsPowerbeatsPro2:
-            ["beats.powerbeats.pro.2", "beats.powerbeatspro", "beats.headphones", "headphones"]
+            return ["beats.powerbeats.pro.2", "beats.powerbeatspro", "beats.headphones", "headphones"]
         case .beatsPowerbeatsPro:
-            ["beats.powerbeatspro", "beats.powerbeats.pro", "beats.headphones", "headphones"]
+            return ["beats.powerbeatspro", "beats.powerbeats.pro", "beats.headphones", "headphones"]
         case .beatsPowerbeats3:
-            ["beats.powerbeats3", "beats.powerbeats", "beats.headphones", "headphones"]
+            return ["beats.powerbeats3", "beats.powerbeats", "beats.headphones", "headphones"]
         case .beatsPowerbeats:
-            ["beats.powerbeats", "beats.headphones", "headphones"]
+            return ["beats.powerbeats", "beats.headphones", "headphones"]
         case .beatsEarphones:
-            ["beats.earphones", "beats.headphones", "headphones"]
+            return ["beats.earphones", "beats.headphones", "headphones"]
         case .beatsHeadphones:
-            ["beats.headphones", "headphones"]
+            return ["beats.headphones", "headphones"]
         case .homePod:
-            ["homepod", "hifispeaker.fill"]
+            return ["homepod", "hifispeaker.fill"]
         case .homePodMini:
-            ["homepodmini", "homepod.mini", "homepod", "hifispeaker.fill"]
+            return ["homepodmini", "homepod.mini", "homepod", "hifispeaker.fill"]
         case .headphones:
-            ["headphones"]
+            return ["headphones"]
         case .speaker:
-            ["hifispeaker.fill", "hifispeaker"]
+            return ["hifispeaker.fill", "hifispeaker"]
         case .builtInSpeaker:
-            builtInSpeakerCandidates(for: host)
+            return builtInSpeakerCandidates(for: host)
         case .display:
-            ["display"]
+            return ["display"]
         case .appleTV:
-            ["appletv", "display"]
+            return ["appletv", "display"]
         case .airPlay:
-            ["airplayaudio", "hifispeaker.fill"]
+            return ["airplayaudio", "hifispeaker.fill"]
         }
     }
 
@@ -444,17 +444,17 @@ enum AudioOutputDeviceIcon {
     private static func builtInSpeakerCandidates(for host: HostMacKind) -> [String] {
         switch host {
         case .laptop:
-            ["macbook", "laptopcomputer"]
+            return ["macbook", "laptopcomputer"]
         case .mini:
-            ["macmini.gen2", "macmini", "desktopcomputer"]
+            return ["macmini.gen2", "macmini", "desktopcomputer"]
         case .studio:
-            ["macstudio", "desktopcomputer"]
+            return ["macstudio", "desktopcomputer"]
         case .macPro:
-            ["macpro.gen3", "desktopcomputer"]
+            return ["macpro.gen3", "desktopcomputer"]
         case .desktop:
-            ["desktopcomputer"]
+            return ["desktopcomputer"]
         case .unknown:
-            ["macbook", "desktopcomputer"]
+            return ["macbook", "desktopcomputer"]
         }
     }
 

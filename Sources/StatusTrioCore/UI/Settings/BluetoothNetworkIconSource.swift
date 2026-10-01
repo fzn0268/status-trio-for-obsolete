@@ -18,9 +18,9 @@ enum BluetoothNetworkIconSource: Hashable, Identifiable {
     var id: String {
         switch self {
         case .audioDevices:
-            ""
+            return ""
         case let .device(address):
-            address
+            return address
         }
     }
 }

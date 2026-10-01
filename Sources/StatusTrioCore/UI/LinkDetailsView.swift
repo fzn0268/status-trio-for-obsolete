@@ -114,16 +114,16 @@ enum LinkDetailPresentation {
         localization: Localization
     ) -> String {
         switch security {
-        case .open: localization.string(.wifiSecurityOpen)
-        case .wep, .dynamicWEP: "WEP"
-        case .wpaPersonal, .wpaPersonalMixed: "WPA"
-        case .wpa2Personal, .personal: "WPA2"
-        case .wpa3Personal, .wpa3Transition: "WPA3"
-        case .owe: "OWE"
-        case .oweTransition: "OWE Transition"
+        case .open: return localization.string(.wifiSecurityOpen)
+        case .wep, .dynamicWEP: return "WEP"
+        case .wpaPersonal, .wpaPersonalMixed: return "WPA"
+        case .wpa2Personal, .personal: return "WPA2"
+        case .wpa3Personal, .wpa3Transition: return "WPA3"
+        case .owe: return "OWE"
+        case .oweTransition: return "OWE Transition"
         case .wpaEnterprise, .wpaEnterpriseMixed, .wpa2Enterprise, .enterprise, .wpa3Enterprise:
-            localization.string(.wifiSecurityEnterprise)
-        case .unknown: localization.string(.networkDetailUnavailable)
+            return localization.string(.wifiSecurityEnterprise)
+        case .unknown: return localization.string(.networkDetailUnavailable)
         }
     }
 }

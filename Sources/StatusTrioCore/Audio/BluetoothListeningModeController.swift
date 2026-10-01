@@ -112,9 +112,9 @@ final class BluetoothListeningModeController: ObservableObject {
     private var subscriptions: [AudioDeviceID: BluetoothListeningModeSubscription] = [:]
 
     init(
-        hal: BluetoothListeningModeHAL = BluetoothListeningModeHAL(),
-        endpointProvider: any CoreAudioBluetoothEndpointProviding = CoreAudioBluetoothListeningModeEndpointProvider(),
-        listenerBackend: any BluetoothListeningModePropertyListening = CoreAudioBluetoothListeningModeListenerBackend(),
+        hal: BluetoothListeningModeHAL = assumingMainActor { BluetoothListeningModeHAL() },
+        endpointProvider: any CoreAudioBluetoothEndpointProviding = assumingMainActor { CoreAudioBluetoothListeningModeEndpointProvider() },
+        listenerBackend: any BluetoothListeningModePropertyListening = assumingMainActor { CoreAudioBluetoothListeningModeListenerBackend() },
         failureClearDelay: TimeInterval = 2,
         previewSettleDelay: TimeInterval = 0.4
     ) {

@@ -108,7 +108,7 @@ final class BatteryMonitor: BatteryMonitoring {
     private var lifecycle = Lifecycle.idle
 
     init(
-        reader: any BatteryReadingProviding = IOPSBatteryReader(),
+        reader: any BatteryReadingProviding = assumingMainActor { IOPSBatteryReader() },
         lowPowerModeProvider: @escaping () -> Bool = {
             ProcessInfo.processInfo.isLowPowerModeEnabled
         },
@@ -180,7 +180,7 @@ final class BatteryMonitor: BatteryMonitoring {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.refresh()
             }
         }

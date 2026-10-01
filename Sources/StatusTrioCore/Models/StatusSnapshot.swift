@@ -55,9 +55,9 @@ enum WiFiState: Equatable, Sendable {
     var isNetworkAssociated: Bool {
         switch self {
         case .connected, .noInternet, .hotspot, .temporary, .shared:
-            true
+            return true
         case .notAssociated, .off, .unavailable:
-            false
+            return false
         }
     }
 }

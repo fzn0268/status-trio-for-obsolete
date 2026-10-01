@@ -31,7 +31,7 @@ enum InterfaceAddressReader {
             let node = entry.pointee
             cursor = node.ifa_next
 
-            guard let name = String(validatingCString: node.ifa_name) else { continue }
+            guard let name = String(validatingUTF8: node.ifa_name) else { continue }
             if flagsByName[name] == nil {
                 order.append(name)
             }
@@ -242,9 +242,9 @@ final class SystemVPNReader: @unchecked Sendable, VPNReading {
     private let proxy: any VPNProxyReadingProviding
 
     init(
-        interfaces: any TunnelInterfaceReading = SystemTunnelInterfaceReader(),
-        services: any VPNServiceReadingProviding = SystemVPNServiceReader(),
-        proxy: any VPNProxyReadingProviding = SystemVPNProxyReader()
+        interfaces: any TunnelInterfaceReading = assumingMainActor { SystemTunnelInterfaceReader() },
+        services: any VPNServiceReadingProviding = assumingMainActor { SystemVPNServiceReader() },
+        proxy: any VPNProxyReadingProviding = assumingMainActor { SystemVPNProxyReader() }
     ) {
         self.interfaces = interfaces
         self.services = services

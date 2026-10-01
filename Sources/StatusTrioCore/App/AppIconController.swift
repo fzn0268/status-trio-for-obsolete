@@ -49,15 +49,17 @@ final class AppIconController {
         store: SystemStatusStore,
         settings: SettingsStore,
         activationPolicy: AppActivationPolicy,
-        application: any ApplicationDockIconApplying = NSApplication.shared,
+        application: any ApplicationDockIconApplying = assumingMainActor { NSApplication.shared },
         setMenuBarVisible: @escaping (Bool) -> Void,
         renderDockIcon: @escaping DockRenderer,
         theme: @escaping () -> SystemIconAppearanceTheme = {
             SystemIconAppearanceReader.current()
         },
         isDarkAppearance: @escaping () -> Bool = {
-            NSApplication.shared.effectiveAppearance
-                .bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            assumingMainActor {
+                NSApplication.shared.effectiveAppearance
+                    .bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            }
         },
         notificationCenter: NotificationCenter = .default
     ) {
@@ -96,8 +98,8 @@ final class AppIconController {
                 // @Published emits before the stored value changes, so use the
                 // value the publisher delivered.
                 guard let self else { return }
-                isDockTileVisible = isRegular
-                dockTileVisibilityChanged()
+                self.isDockTileVisible = isRegular
+                self.dockTileVisibilityChanged()
             }
             .store(in: &cancellables)
         monitor.onChange = { [weak self] _ in
@@ -166,8 +168,8 @@ final class AppIconController {
             .dropFirst()
             .sink { [weak self] preference in
                 guard let self else { return }
-                currentBackgroundPreference = preference
-                renderLatestDockIcon()
+                self.currentBackgroundPreference = preference
+                self.renderLatestDockIcon()
             }
             .store(in: &cancellables)
     }
@@ -182,8 +184,8 @@ final class AppIconController {
             .dropFirst()
             .sink { [weak self] appearance in
                 guard let self else { return }
-                currentAppearance = appearance
-                renderCoalescer.submit { [weak self] in
+                self.currentAppearance = appearance
+                self.renderCoalescer.submit { [weak self] in
                     self?.renderLatestDockIcon()
                 }
             }

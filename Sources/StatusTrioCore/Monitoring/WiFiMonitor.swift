@@ -339,10 +339,10 @@ final class WiFiMonitor: NSObject, WiFiMonitoring, CWEventDelegate {
     private var lifecycle = Lifecycle.idle
 
     init(
-        statusReader: any WiFiStatusReadingProviding = CoreWLANStatusReader(),
-        nameAuthorizer: any WiFiNameAuthorizing = CoreLocationWiFiNameAuthorizer(),
-        eventMonitor: any WiFiEventMonitoring = CoreWLANWiFiEventMonitor(),
-        pathMonitor: any WiFiPathMonitoring = NetworkWiFiPathMonitor(),
+        statusReader: any WiFiStatusReadingProviding = assumingMainActor { CoreWLANStatusReader() },
+        nameAuthorizer: any WiFiNameAuthorizing = assumingMainActor { CoreLocationWiFiNameAuthorizer() },
+        eventMonitor: any WiFiEventMonitoring = assumingMainActor { CoreWLANWiFiEventMonitor() },
+        pathMonitor: any WiFiPathMonitoring = assumingMainActor { NetworkWiFiPathMonitor() },
         staleInterval: TimeInterval = 30,
         initialPath: WiFiPathSnapshot? = nil,
         now: @escaping () -> Date = Date.init,

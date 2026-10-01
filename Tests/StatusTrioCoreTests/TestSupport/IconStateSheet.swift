@@ -29,10 +29,10 @@ enum IconStateSheet {
 
         func tint(in palette: SheetCanvas.Palette) -> CGColor {
             switch self {
-            case .battery: palette.batteryTint
-            case .network: palette.networkTint
-            case .bluetooth: palette.bluetoothTint
-            case .volume: palette.volumeTint
+            case .battery: return palette.batteryTint
+            case .network: return palette.networkTint
+            case .bluetooth: return palette.bluetoothTint
+            case .volume: return palette.volumeTint
             }
         }
     }
@@ -391,17 +391,17 @@ enum IconStateSheet {
 
         var palette: SheetCanvas.Palette {
             switch self {
-            case .light: .light
-            case .dark: .dark
+            case .light: return .light
+            case .dark: return .dark
             }
         }
 
         var caption: String {
             switch self {
             case .light:
-                "图标颜色随菜单栏外观自动切换，这里按浅色外观渲染。 · Colors follow the menu bar appearance; rendered here for light."
+                return "图标颜色随菜单栏外观自动切换，这里按浅色外观渲染。 · Colors follow the menu bar appearance; rendered here for light."
             case .dark:
-                "图标颜色随菜单栏外观自动切换，这里按深色外观渲染。 · Colors follow the menu bar appearance; rendered here for dark."
+                return "图标颜色随菜单栏外观自动切换，这里按深色外观渲染。 · Colors follow the menu bar appearance; rendered here for dark."
             }
         }
     }

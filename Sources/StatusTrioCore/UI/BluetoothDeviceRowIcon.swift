@@ -15,11 +15,11 @@ enum BluetoothDeviceRowIcon {
     static func symbolName(for device: BluetoothDevice) -> String {
         switch device.kind {
         case .audio:
-            AudioOutputDeviceIcon.symbolName(
+            return AudioOutputDeviceIcon.symbolName(
                 for: AudioDeviceIdentity(bluetooth: device.name, model: device.airPodsModel)
             )
         default:
-            symbolName(for: device.kind, name: device.name)
+            return symbolName(for: device.kind, name: device.name)
         }
     }
 
@@ -87,55 +87,55 @@ enum BluetoothDeviceRowIcon {
     private static func classCandidates(for kind: BluetoothDeviceKind) -> [String] {
         switch kind {
         case .computer(.laptop):
-            ["laptopcomputer"]
+            return ["laptopcomputer"]
         // A report that names no form leaves the two equally likely, so the
         // generic machine glyph is the honest one; a report that says `Laptop`
         // or `Desktop` is drawn exactly.
         case .computer(.desktop), .computer(.unclassified):
-            ["desktopcomputer"]
+            return ["desktopcomputer"]
         case .mobile(.phone):
-            ["smartphone", "iphone"]
+            return ["smartphone", "iphone"]
         case .mobile(.tablet):
             // Landscape, so the tablet is told apart from the phone at a glance
             // in a column that draws both: portrait, an iPad and an iPhone are
             // nearly the same rounded rectangle. The portrait glyph stays as the
             // fallback because it is the older of the two.
-            ["ipad.landscape", "ipad"]
+            return ["ipad.landscape", "ipad"]
         // A wristwatch class covers every brand, so the generic watch leads and
         // the Apple one is only the fallback.
         case .mobile(.watch):
-            ["watch.analog", "applewatch"]
+            return ["watch.analog", "applewatch"]
         // Reached only when the row draws this class without a device to
         // resolve it by; `symbolName(for:)` sends every real audio device
         // through `AudioOutputDeviceIcon` first.
         case .audio:
-            ["headphones"]
+            return ["headphones"]
         case .peripheral(.keyboard):
-            ["keyboard"]
+            return ["keyboard"]
         case .peripheral(.mouse):
-            ["computermouse"]
+            return ["computermouse"]
         case .peripheral(.trackpad):
-            ["rectangle.and.hand.point.up.left"]
+            return ["rectangle.and.hand.point.up.left"]
         case .peripheral(.gamepad):
-            ["gamecontroller"]
+            return ["gamecontroller"]
         case .peripheral(.unclassified):
-            [genericSymbol]
+            return [genericSymbol]
         case .imaging(.printer):
-            ["printer"]
+            return ["printer"]
         case .imaging(.scanner):
-            ["scanner"]
+            return ["scanner"]
         case .imaging(.camera):
-            ["camera"]
+            return ["camera"]
         case .imaging(.display):
-            ["tv"]
+            return ["tv"]
         case .imaging(.unclassified):
-            [genericSymbol]
+            return [genericSymbol]
         case .toy:
-            ["gamecontroller"]
+            return ["gamecontroller"]
         case .health:
-            ["heart.text.square", "waveform.path.ecg"]
+            return ["heart.text.square", "waveform.path.ecg"]
         case .unknown:
-            [genericSymbol]
+            return [genericSymbol]
         }
     }
 }

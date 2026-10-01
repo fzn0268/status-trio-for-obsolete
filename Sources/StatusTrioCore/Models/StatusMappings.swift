@@ -130,9 +130,9 @@ private extension WiFiState {
     var isBluetoothReplacementNetworkError: Bool {
         switch self {
         case .notAssociated, .noInternet, .off, .unavailable:
-            true
+            return true
         case .connected, .hotspot, .temporary, .shared:
-            false
+            return false
         }
     }
 }

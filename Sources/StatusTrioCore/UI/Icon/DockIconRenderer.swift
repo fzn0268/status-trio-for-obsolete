@@ -59,13 +59,13 @@ enum DockIconRenderer {
     private static func palette(for style: DockIconBackgroundStyle) -> Palette {
         switch style {
         case .dark:
-            Palette(
+            return Palette(
                 body: color(red: 21.0 / 255.0, green: 21.0 / 255.0, blue: 23.0 / 255.0),
                 border: color(red: 58.0 / 255.0, green: 58.0 / 255.0, blue: 61.0 / 255.0),
                 foreground: color(red: 1, green: 1, blue: 1)
             )
         case .light:
-            Palette(
+            return Palette(
                 body: color(red: 1, green: 1, blue: 1),
                 border: color(red: 210.0 / 255.0, green: 210.0 / 255.0, blue: 215.0 / 255.0),
                 foreground: color(red: 29.0 / 255.0, green: 29.0 / 255.0, blue: 31.0 / 255.0)
@@ -73,7 +73,7 @@ enum DockIconRenderer {
         case .clear:
             // Approximation of the system's "clear" glass: a translucent light
             // tile with a bright rim so the Dock shows through.
-            Palette(
+            return Palette(
                 body: color(red: 1, green: 1, blue: 1, alpha: 0.55),
                 border: color(red: 1, green: 1, blue: 1, alpha: 0.8),
                 foreground: color(red: 29.0 / 255.0, green: 29.0 / 255.0, blue: 31.0 / 255.0)

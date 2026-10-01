@@ -25,7 +25,7 @@ final class BluetoothProfilerReportCache: @unchecked Sendable {
 
     func freshData(
         maxAge: TimeInterval = BluetoothProfilerReportCache.defaultMaxAge,
-        now: Date = Date()
+        now: Date = assumingMainActor { Date() }
     ) -> Data? {
         lock.withLock {
             guard let entry, now.timeIntervalSince(entry.storedAt) < maxAge else { return nil }

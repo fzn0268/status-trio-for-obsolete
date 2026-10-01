@@ -227,17 +227,17 @@ struct BluetoothDeviceRow: View {
     private var stateAccessibilityValue: String {
         switch BluetoothDeviceActionPolicy.status(for: device, actionState: actionState) {
         case .connected:
-            localization.string(.bluetoothConnected)
+            return localization.string(.bluetoothConnected)
         case .notConnected:
-            localization.string(.bluetoothNotConnected)
+            return localization.string(.bluetoothNotConnected)
         case .connecting:
-            localization.string(.bluetoothStateConnecting)
+            return localization.string(.bluetoothStateConnecting)
         case .disconnecting:
-            localization.string(.bluetoothStateDisconnecting)
+            return localization.string(.bluetoothStateDisconnecting)
         case .connectFailed:
-            localization.string(.bluetoothStateConnectFailed)
+            return localization.string(.bluetoothStateConnectFailed)
         case .disconnectFailed:
-            localization.string(.bluetoothStateDisconnectFailed)
+            return localization.string(.bluetoothStateDisconnectFailed)
         }
     }
 
@@ -264,8 +264,8 @@ struct BluetoothDeviceRow: View {
     /// still on screen is not in flight: tapping it retries.
     private var isActionInFlight: Bool {
         switch actionState {
-        case .connecting, .disconnecting: true
-        case .failed, .none: false
+        case .connecting, .disconnecting: return true
+        case .failed, .none: return false
         }
     }
 

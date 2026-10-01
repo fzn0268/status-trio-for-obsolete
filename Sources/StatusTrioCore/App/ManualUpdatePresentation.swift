@@ -24,7 +24,7 @@ final class ManualUpdatePresentation {
 
     init(
         activationPolicy: AppActivationPolicy,
-        application: any ApplicationActivating = NSApplication.shared
+        application: any ApplicationActivating = assumingMainActor { NSApplication.shared }
     ) {
         self.activationPolicy = activationPolicy
         self.application = application

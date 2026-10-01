@@ -8,8 +8,8 @@ enum BluetoothDeviceAction: Equatable, Sendable {
     /// The state a row shows while this action is in flight.
     var inFlightState: BluetoothDeviceActionState {
         switch self {
-        case .connect: .connecting
-        case .disconnect: .disconnecting
+        case .connect: return .connecting
+        case .disconnect: return .disconnecting
         }
     }
 }
@@ -42,8 +42,8 @@ enum BluetoothDeviceRowStatus: Equatable, Sendable {
     /// in flight or a failure, is written out.
     var drawsText: Bool {
         switch self {
-        case .connected, .notConnected: false
-        case .connecting, .disconnecting, .connectFailed, .disconnectFailed: true
+        case .connected, .notConnected: return false
+        case .connecting, .disconnecting, .connectFailed, .disconnectFailed: return true
         }
     }
 }
@@ -84,11 +84,11 @@ enum BluetoothDeviceActionPolicy {
         actionState: BluetoothDeviceActionState?
     ) -> BluetoothDeviceRowStatus {
         switch actionState {
-        case .connecting: .connecting
-        case .disconnecting: .disconnecting
-        case .failed(.connect): .connectFailed
-        case .failed(.disconnect): .disconnectFailed
-        case nil: device.isConnected ? .connected : .notConnected
+        case .connecting: return .connecting
+        case .disconnecting: return .disconnecting
+        case .failed(.connect): return .connectFailed
+        case .failed(.disconnect): return .disconnectFailed
+        case nil: return device.isConnected ? .connected : .notConnected
         }
     }
 }

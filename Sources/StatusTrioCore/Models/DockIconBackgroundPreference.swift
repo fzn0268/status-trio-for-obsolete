@@ -9,9 +9,9 @@ enum DockIconBackgroundPreference: String, CaseIterable, Identifiable, Sendable 
 
     var settingsSymbol: String {
         switch self {
-        case .system: "circle.lefthalf.filled"
-        case .dark: "moon.fill"
-        case .light: "sun.max.fill"
+        case .system: return "circle.lefthalf.filled"
+        case .dark: return "moon.fill"
+        case .light: return "sun.max.fill"
         }
     }
 }

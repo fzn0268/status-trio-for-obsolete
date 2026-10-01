@@ -83,8 +83,8 @@ extension BluetoothDeviceKind {
     /// family.
     var acceptsHIDRefinement: Bool {
         switch self {
-        case .peripheral, .unknown: true
-        case .computer, .mobile, .audio, .imaging, .toy, .health: false
+        case .peripheral, .unknown: return true
+        case .computer, .mobile, .audio, .imaging, .toy, .health: return false
         }
     }
 }

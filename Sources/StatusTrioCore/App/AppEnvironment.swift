@@ -82,10 +82,10 @@ final class AppEnvironment {
         )
         .sink { [weak self] battery, enabled, displayAsleep, testMode in
             guard let self else { return }
-            chargingEffectClock.update(
+            self.chargingEffectClock.update(
                 battery: ChargingEffectTestMode.battery(battery, enabled: testMode),
                 enabled: enabled,
-                reduceMotion: chargingEffectMotionMonitor.shouldReduceMotion,
+                reduceMotion: self.chargingEffectMotionMonitor.shouldReduceMotion,
                 displayAsleep: displayAsleep
             )
         }

@@ -92,7 +92,7 @@ final class SystemStatusStore: ObservableObject {
     /// operation the teardown performs on them —
     /// `NotificationCenter.removeObserver(_:)` — is safe to call from any
     /// thread. This mirrors the existing `wakeObserver` pattern and avoids
-    /// `MainActor.assumeIsolated`, which is a fatal assertion rather than a hop
+    /// `assumingMainActor`, which is a fatal assertion rather than a hop
     /// if the last reference is released off the main thread.
     private var wakeObserver: NSObjectProtocol?
     private var displaySleepObserver: NSObjectProtocol?
@@ -120,7 +120,7 @@ final class SystemStatusStore: ObservableObject {
         vpnMonitor: (any VPNMonitoring)? = nil,
         volumeMonitor: any VolumeMonitoring,
         inputMonitor: (any AudioInputMonitoring)? = nil,
-        volumeFeedback: (any VolumeFeedbackPlaying)? = VolumeFeedbackPlayer(),
+        volumeFeedback: (any VolumeFeedbackPlaying)? = assumingMainActor { VolumeFeedbackPlayer() },
         refreshInterval: TimeInterval = 15,
         nameResolutionTimeout: TimeInterval = 1.5,
         sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { interval in
@@ -130,11 +130,11 @@ final class SystemStatusStore: ObservableObject {
             try await Task.sleep(seconds: $0)
         },
         wakeNotificationCenter: NotificationCenter = NSWorkspace.shared.notificationCenter,
-        batteryDetails: BatteryDetailsController = BatteryDetailsController(),
-        wifiNetworks: WiFiNetworkController = WiFiNetworkController(),
-        primaryLink: PrimaryLinkController = PrimaryLinkController(),
-        bluetoothDevices: BluetoothDeviceController = BluetoothDeviceController(),
-        bluetoothListeningModes: BluetoothListeningModeController = BluetoothListeningModeController(),
+        batteryDetails: BatteryDetailsController = assumingMainActor { BatteryDetailsController() },
+        wifiNetworks: WiFiNetworkController = assumingMainActor { WiFiNetworkController() },
+        primaryLink: PrimaryLinkController = assumingMainActor { PrimaryLinkController() },
+        bluetoothDevices: BluetoothDeviceController = assumingMainActor { BluetoothDeviceController() },
+        bluetoothListeningModes: BluetoothListeningModeController = assumingMainActor { BluetoothListeningModeController() },
         initialSnapshot: StatusSnapshot = .placeholder
     ) {
         self.batteryMonitor = batteryMonitor

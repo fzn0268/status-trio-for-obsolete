@@ -152,8 +152,8 @@ protocol BluetoothLEBatteryScanning: AnyObject {
 @MainActor
 final class CoreBluetoothLEBatteryScanner: NSObject,
     BluetoothLEBatteryScanning,
-    @preconcurrency CBCentralManagerDelegate,
-    @preconcurrency CBPeripheralDelegate {
+    CBCentralManagerDelegate,
+    CBPeripheralDelegate {
 
     private struct PeripheralSession {
         let peripheral: CBPeripheral

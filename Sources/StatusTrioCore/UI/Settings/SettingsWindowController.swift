@@ -24,7 +24,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         localization: Localization,
         activationPolicy: AppActivationPolicy,
         showIconGuide: @escaping () -> Void,
-        chargingEffectClock: ChargingEffectClock = ChargingEffectClock()
+        chargingEffectClock: ChargingEffectClock = assumingMainActor { ChargingEffectClock() }
     ) {
         self.store = store
         self.statusStore = statusStore

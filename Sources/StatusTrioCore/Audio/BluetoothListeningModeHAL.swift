@@ -147,8 +147,8 @@ struct BluetoothListeningModeHAL {
     let retryDelay: TimeInterval
 
     init(
-        backend: any BluetoothListeningModePropertyReading = CoreAudioBluetoothListeningModeBackend(),
-        sleeper: any BluetoothListeningModeSleeping = ClockBluetoothListeningModeSleeper(),
+        backend: any BluetoothListeningModePropertyReading = assumingMainActor { CoreAudioBluetoothListeningModeBackend() },
+        sleeper: any BluetoothListeningModeSleeping = assumingMainActor { ClockBluetoothListeningModeSleeper() },
         retryAttempts: Int = 16,
         retryDelay: TimeInterval = 0.05
     ) {

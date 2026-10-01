@@ -8,18 +8,18 @@ enum LanguagePreference: Hashable, Identifiable, Sendable {
     var id: String {
         switch self {
         case .system:
-            "system"
+            return "system"
         case .language(let language):
-            language.rawValue
+            return language.rawValue
         }
     }
 
     func resolvedLanguage(preferredLanguages: [String]) -> AppLanguage {
         switch self {
         case .system:
-            AppLanguage.resolved(preferredLanguages: preferredLanguages)
+            return AppLanguage.resolved(preferredLanguages: preferredLanguages)
         case .language(let language):
-            language
+            return language
         }
     }
 }
@@ -141,7 +141,10 @@ final class Localization: ObservableObject {
         return value
     }
 
-    static func resourceBundle(for language: AppLanguage) -> Bundle? {
+    /// `nonisolated` because the default `bundleProvider` closure below is a
+    /// plain function value: Swift 5.7 does not treat a default argument as
+    /// running on the actor of the initializer it belongs to.
+    nonisolated static func resourceBundle(for language: AppLanguage) -> Bundle? {
         let candidates = [language.rawValue, language.rawValue.lowercased()]
 
         for candidate in candidates {

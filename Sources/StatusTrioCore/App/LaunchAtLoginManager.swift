@@ -52,13 +52,13 @@ final class SystemLaunchAtLoginService: LaunchAtLoginServicing {
     static func status(for status: SMAppService.Status) -> LaunchAtLoginStatus {
         switch status {
         case .enabled:
-            .enabled
+            return .enabled
         case .requiresApproval:
-            .requiresApproval
+            return .requiresApproval
         case .notRegistered, .notFound:
-            .notRegistered
+            return .notRegistered
         @unknown default:
-            .notRegistered
+            return .notRegistered
         }
     }
 
@@ -89,7 +89,7 @@ final class LaunchAtLoginManager: ObservableObject {
 
     private let service: LaunchAtLoginServicing
 
-    init(service: LaunchAtLoginServicing = SystemLaunchAtLoginService()) {
+    init(service: LaunchAtLoginServicing = assumingMainActor { SystemLaunchAtLoginService() }) {
         self.service = service
         self.status = service.status
     }

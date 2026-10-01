@@ -27,181 +27,185 @@ struct BluetoothSectionView: View {
             }
 
             SettingsGroup(localization.string(.settingsBluetoothTitle)) {
-                SettingsToggleRow(
-                    symbol: "list.bullet.rectangle",
-                    tint: .purple,
-                    title: localization.string(.settingsBluetoothShowInStatusPanel),
-                    subtitle: localization.string(.settingsBluetoothShowInStatusPanelDescription),
-                    isOn: showInStatusPanelBinding
-                )
+                Group {
+                    SettingsToggleRow(
+                        symbol: "list.bullet.rectangle",
+                        tint: .purple,
+                        title: localization.string(.settingsBluetoothShowInStatusPanel),
+                        subtitle: localization.string(.settingsBluetoothShowInStatusPanelDescription),
+                        isOn: showInStatusPanelBinding
+                    )
 
-                SettingsDivider()
-
-                SettingsRow(
-                    "wave.3.right.circle.fill",
-                    tint: .blue,
-                    title: localization.string(.settingsBluetoothSymbolScale),
-                    subtitle: localization.string(.settingsBluetoothSymbolScaleDescription)
-                ) {
-                    HStack(spacing: 8) {
-                        Slider(
-                            value: Binding(
-                                get: { store.bluetoothSymbolScale },
-                                set: { store.bluetoothSymbolScale = (round($0 * 20) / 20) }
-                            ),
-                            in: SettingsStore.bluetoothSymbolScaleRange
-                        )
-                        .frame(width: 130)
-                        .controlSize(.small)
-                        .accessibilityLabel(localization.string(.settingsBluetoothSymbolScale))
-                        .accessibilityValue(
-                            "\(Int(round(store.bluetoothSymbolScale * 100)))%"
-                        )
-
-                        Text("\(Int(round(store.bluetoothSymbolScale * 100)))%")
-                            .font(.system(size: 12, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                            .frame(width: 44, alignment: .trailing)
-                    }
-                }
-
-                SettingsDivider()
-
-                SettingsToggleRow(
-                    symbol: "wave.3.right.circle.fill",
-                    tint: .blue,
-                    title: localization.string(.settingsBluetoothReplaceNetworkIcon),
-                    subtitle: localization.string(.settingsBluetoothReplaceNetworkIconDescription),
-                    isOn: $store.replacesNetworkIconWithBluetoothAudio
-                )
-
-                if store.replacesNetworkIconWithBluetoothAudio {
                     SettingsDivider()
 
-                    networkIconSourceRow
+                    SettingsRow(
+                        "wave.3.right.circle.fill",
+                        tint: .blue,
+                        title: localization.string(.settingsBluetoothSymbolScale),
+                        subtitle: localization.string(.settingsBluetoothSymbolScaleDescription)
+                    ) {
+                        HStack(spacing: 8) {
+                            Slider(
+                                value: Binding(
+                                    get: { store.bluetoothSymbolScale },
+                                    set: { store.bluetoothSymbolScale = (round($0 * 20) / 20) }
+                                ),
+                                in: SettingsStore.bluetoothSymbolScaleRange
+                            )
+                            .frame(width: 130)
+                            .controlSize(.small)
+                            .accessibilityLabel(localization.string(.settingsBluetoothSymbolScale))
+                            .accessibilityValue(
+                                "\(Int(round(store.bluetoothSymbolScale * 100)))%"
+                            )
 
-                    if !sourceOptionsOffersDevices {
+                            Text("\(Int(round(store.bluetoothSymbolScale * 100)))%")
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                                .frame(width: 44, alignment: .trailing)
+                        }
+                    }
+
+                    SettingsDivider()
+
+                    SettingsToggleRow(
+                        symbol: "wave.3.right.circle.fill",
+                        tint: .blue,
+                        title: localization.string(.settingsBluetoothReplaceNetworkIcon),
+                        subtitle: localization.string(.settingsBluetoothReplaceNetworkIconDescription),
+                        isOn: $store.replacesNetworkIconWithBluetoothAudio
+                    )
+
+                    if store.replacesNetworkIconWithBluetoothAudio {
                         SettingsDivider()
 
-                        SettingsHintRow(
-                            text: localization.string(.settingsBluetoothNetworkIconSourceDevicesEmpty)
-                        )
-                    }
-                }
+                        networkIconSourceRow
 
-                SettingsDivider()
+                        if !sourceOptionsOffersDevices {
+                            SettingsDivider()
 
-                SettingsToggleRow(
-                    symbol: "speaker.wave.2.fill",
-                    tint: .cyan,
-                    title: localization.string(.settingsBluetoothVolumeColor),
-                    subtitle: localization.string(.settingsBluetoothVolumeColorDescription),
-                    isOn: $store.usesBluetoothAudioVolumeColor
-                )
-
-                SettingsDivider()
-
-                SettingsToggleRow(
-                    symbol: "wifi.exclamationmark",
-                    tint: .orange,
-                    title: localization.string(.settingsBluetoothNetworkErrorPriority),
-                    subtitle: localization.string(.settingsBluetoothNetworkErrorPriorityDescription),
-                    isOn: $store.prioritizesNetworkErrorsOverBluetoothAudio
-                )
-
-                SettingsDivider()
-
-                SettingsToggleRow(
-                    symbol: "battery.75percent",
-                    tint: .green,
-                    title: localization.string(.settingsBluetoothBatteryLevels),
-                    subtitle: localization.string(.settingsBluetoothBatteryLevelsDescription),
-                    isOn: $store.showsBluetoothBatteryLevels
-                )
-
-                SettingsDivider()
-
-                SettingsToggleRow(
-                    symbol: "dot.radiowaves.left.and.right",
-                    tint: .blue,
-                    title: localization.string(.settingsBluetoothNearbyBatteryDevices),
-                    subtitle: localization.string(.settingsBluetoothNearbyBatteryDevicesDescription),
-                    isOn: $store.showsNearbyBluetoothBatteryDevices
-                )
-
-                SettingsDivider()
-
-                SettingsToggleRow(
-                    symbol: "eyeglasses",
-                    tint: .purple,
-                    title: localization.string(.settingsBluetoothListeningModePreview),
-                    subtitle: localization.string(.settingsBluetoothListeningModePreviewDescription),
-                    isOn: $store.previewsBluetoothListeningMode
-                )
-
-                if store.previewsBluetoothListeningMode {
-                    SettingsDivider()
-
-                    SettingsRow(
-                        "character.cursor.ibeam",
-                        tint: .purple,
-                        title: localization.string(.settingsBluetoothListeningModePreviewDeviceName),
-                        subtitle: localization.string(.settingsBluetoothListeningModePreviewDeviceNameDescription)
-                    ) {
-                        TextField(
-                            localization.string(.settingsBluetoothListeningModePreviewDeviceName),
-                            text: $store.bluetoothListeningModePreviewDeviceName
-                        )
-                        .textFieldStyle(.roundedBorder)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 150)
-                        .labelsHidden()
-                    }
-
-                    SettingsDivider()
-
-                    SettingsRow(
-                        "number.square",
-                        tint: .purple,
-                        title: localization.string(.settingsBluetoothListeningModePreviewDeviceCount),
-                        subtitle: localization.string(.settingsBluetoothListeningModePreviewDeviceCountDescription)
-                    ) {
-                        HStack(spacing: 10) {
-                            Text("\(store.bluetoothListeningModePreviewDeviceCount)")
-                                .font(.system(size: 13, design: .monospaced))
-                                .frame(minWidth: 22, alignment: .trailing)
-
-                            Stepper(
-                                localization.string(.settingsBluetoothListeningModePreviewDeviceCount),
-                                value: $store.bluetoothListeningModePreviewDeviceCount,
-                                in: SettingsStore.bluetoothListeningModePreviewDeviceCountRange
+                            SettingsHintRow(
+                                text: localization.string(.settingsBluetoothNetworkIconSourceDevicesEmpty)
                             )
+                        }
+                    }
+
+                    SettingsDivider()
+
+                    SettingsToggleRow(
+                        symbol: "speaker.wave.2.fill",
+                        tint: .cyan,
+                        title: localization.string(.settingsBluetoothVolumeColor),
+                        subtitle: localization.string(.settingsBluetoothVolumeColorDescription),
+                        isOn: $store.usesBluetoothAudioVolumeColor
+                    )
+
+                    SettingsDivider()
+
+                    SettingsToggleRow(
+                        symbol: "wifi.exclamationmark",
+                        tint: .orange,
+                        title: localization.string(.settingsBluetoothNetworkErrorPriority),
+                        subtitle: localization.string(.settingsBluetoothNetworkErrorPriorityDescription),
+                        isOn: $store.prioritizesNetworkErrorsOverBluetoothAudio
+                    )
+
+                }
+                Group {
+                    SettingsDivider()
+
+                    SettingsToggleRow(
+                        symbol: "battery.75percent",
+                        tint: .green,
+                        title: localization.string(.settingsBluetoothBatteryLevels),
+                        subtitle: localization.string(.settingsBluetoothBatteryLevelsDescription),
+                        isOn: $store.showsBluetoothBatteryLevels
+                    )
+
+                    SettingsDivider()
+
+                    SettingsToggleRow(
+                        symbol: "dot.radiowaves.left.and.right",
+                        tint: .blue,
+                        title: localization.string(.settingsBluetoothNearbyBatteryDevices),
+                        subtitle: localization.string(.settingsBluetoothNearbyBatteryDevicesDescription),
+                        isOn: $store.showsNearbyBluetoothBatteryDevices
+                    )
+
+                    SettingsDivider()
+
+                    SettingsToggleRow(
+                        symbol: "eyeglasses",
+                        tint: .purple,
+                        title: localization.string(.settingsBluetoothListeningModePreview),
+                        subtitle: localization.string(.settingsBluetoothListeningModePreviewDescription),
+                        isOn: $store.previewsBluetoothListeningMode
+                    )
+
+                    if store.previewsBluetoothListeningMode {
+                        SettingsDivider()
+
+                        SettingsRow(
+                            "character.cursor.ibeam",
+                            tint: .purple,
+                            title: localization.string(.settingsBluetoothListeningModePreviewDeviceName),
+                            subtitle: localization.string(.settingsBluetoothListeningModePreviewDeviceNameDescription)
+                        ) {
+                            TextField(
+                                localization.string(.settingsBluetoothListeningModePreviewDeviceName),
+                                text: $store.bluetoothListeningModePreviewDeviceName
+                            )
+                            .textFieldStyle(.roundedBorder)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 150)
                             .labelsHidden()
                         }
-                    }
 
-                    SettingsDivider()
+                        SettingsDivider()
 
-                    SettingsRow(
-                        "translate",
-                        tint: .purple,
-                        title: localization.string(.settingsBluetoothListeningModePreviewLanguage),
-                        subtitle: localization.string(.settingsBluetoothListeningModePreviewLanguageDescription)
-                    ) {
-                        Picker(
-                            localization.string(.settingsBluetoothListeningModePreviewLanguage),
-                            selection: $store.bluetoothListeningModePreviewLanguage
+                        SettingsRow(
+                            "number.square",
+                            tint: .purple,
+                            title: localization.string(.settingsBluetoothListeningModePreviewDeviceCount),
+                            subtitle: localization.string(.settingsBluetoothListeningModePreviewDeviceCountDescription)
                         ) {
-                            Text(localization.string(.settingsLanguageFollowSystem))
-                                .tag("")
+                            HStack(spacing: 10) {
+                                Text("\(store.bluetoothListeningModePreviewDeviceCount)")
+                                    .font(.system(size: 13, design: .monospaced))
+                                    .frame(minWidth: 22, alignment: .trailing)
 
-                            ForEach(AppLanguage.allCases) { lang in
-                                Text(lang.nativeName)
-                                    .tag(lang.rawValue)
+                                Stepper(
+                                    localization.string(.settingsBluetoothListeningModePreviewDeviceCount),
+                                    value: $store.bluetoothListeningModePreviewDeviceCount,
+                                    in: SettingsStore.bluetoothListeningModePreviewDeviceCountRange
+                                )
+                                .labelsHidden()
                             }
                         }
-                        .labelsHidden()
-                        .fixedSize()
+
+                        SettingsDivider()
+
+                        SettingsRow(
+                            "translate",
+                            tint: .purple,
+                            title: localization.string(.settingsBluetoothListeningModePreviewLanguage),
+                            subtitle: localization.string(.settingsBluetoothListeningModePreviewLanguageDescription)
+                        ) {
+                            Picker(
+                                localization.string(.settingsBluetoothListeningModePreviewLanguage),
+                                selection: $store.bluetoothListeningModePreviewLanguage
+                            ) {
+                                Text(localization.string(.settingsLanguageFollowSystem))
+                                    .tag("")
+
+                                ForEach(AppLanguage.allCases) { lang in
+                                    Text(lang.nativeName)
+                                        .tag(lang.rawValue)
+                                }
+                            }
+                            .labelsHidden()
+                            .fixedSize()
+                        }
                     }
                 }
             }

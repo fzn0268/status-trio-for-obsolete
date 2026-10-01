@@ -84,7 +84,7 @@ struct CoreAudioInputHardware: AudioInputHardware {
   private let listenerClient: (any AudioInputPropertyListenerClient)?
 
   init(
-    client: any AudioInputPropertyClient = CoreAudioInputPropertyClient(),
+    client: any AudioInputPropertyClient = assumingMainActor { CoreAudioInputPropertyClient() },
     listenerClient: (any AudioInputPropertyListenerClient)? = nil
   ) {
     self.client = client
@@ -606,37 +606,12 @@ private struct CoreAudioInputPropertyClient: AudioInputPropertyClient, AudioInpu
     return deviceID == AudioDeviceID(kAudioObjectUnknown) ? nil : deviceID
   }
 
+  /// The AudioProcess property constants (`kAudioHardwarePropertyProcessObjectList`,
+  /// `kAudioProcessPropertyIsRunningInput`, `kAudioProcessPropertyDevices`) are not
+  /// in the SDK this branch builds with, so "which process holds the microphone"
+  /// stays unknown and the rows show no in-use marker.
   func activeInputProcessUsage() -> AudioInputProcessDeviceUsage? {
-    guard let processIDs = readObjectIDs(
-      objectID: systemObjectID,
-      selector: kAudioHardwarePropertyProcessObjectList
-    ) else { return nil }
-
-    var activeInputDeviceIDs = Set<AudioDeviceID>()
-    var isComplete = true
-    for processID in processIDs {
-      guard let isRunningInput: UInt32 = readValue(
-        objectID: processID,
-        selector: kAudioProcessPropertyIsRunningInput
-      ), isRunningInput <= 1 else {
-        isComplete = false
-        continue
-      }
-      guard isRunningInput == 1 else { continue }
-      guard let deviceIDs = readObjectIDs(
-        objectID: processID,
-        selector: kAudioProcessPropertyDevices,
-        scope: kAudioDevicePropertyScopeInput
-      ) else {
-        isComplete = false
-        continue
-      }
-      activeInputDeviceIDs.formUnion(deviceIDs)
-    }
-    return AudioInputProcessDeviceUsage(
-      activeInputDeviceIDs: activeInputDeviceIDs,
-      isComplete: isComplete
-    )
+    nil
   }
 
   func isDevice(_ id: AudioDeviceID) -> Bool {

@@ -24,7 +24,7 @@ final class AppActivationPolicy: ObservableObject {
     /// and the menu bar, so both follow this.
     @Published private(set) var isRegularApp: Bool
 
-    init(application: any ApplicationActivationPolicyApplying = NSApplication.shared) {
+    init(application: any ApplicationActivationPolicyApplying = assumingMainActor { NSApplication.shared }) {
         self.application = application
         self.isRegularApp = application.currentActivationPolicy == .regular
     }

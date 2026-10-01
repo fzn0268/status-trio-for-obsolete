@@ -88,15 +88,15 @@ struct AudioInputPresentation {
     static func errorLocalizationKey(for error: AudioInputError) -> LocalizationKey {
         switch error {
         case .refreshFailed:
-            .audioInputRefreshFailed
+            return .audioInputRefreshFailed
         case .switchFailed:
-            .audioInputSwitchFailed
+            return .audioInputSwitchFailed
         case .volumeFailed:
-            .audioInputVolumeFailed
+            return .audioInputVolumeFailed
         case .muteFailed:
-            .audioInputMuteFailed
+            return .audioInputMuteFailed
         case .timedOut:
-            .audioInputTimedOut
+            return .audioInputTimedOut
         }
     }
 

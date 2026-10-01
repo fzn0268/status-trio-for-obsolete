@@ -30,7 +30,7 @@ final class ChargingEffectMotionMonitor {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
+            assumingMainActor {
                 self?.refresh()
             }
         }

@@ -44,9 +44,9 @@ enum ChargingEffectTimeline {
     ) -> TimeInterval {
         switch kind {
         case .burst:
-            event == .levelAdvanced ? levelAdvancedBurstDuration : burstDuration
+            return event == .levelAdvanced ? levelAdvancedBurstDuration : burstDuration
         case .steady:
-            steadyCycleDuration
+            return steadyCycleDuration
         }
     }
 }

@@ -13,8 +13,8 @@ enum PopupVolumeScrollDirection: String, CaseIterable, Identifiable, Sendable {
     /// `true` when a scroll-up gesture raises the volume.
     var increasesWithScrollUp: Bool {
         switch self {
-        case .up: true
-        case .down: false
+        case .up: return true
+        case .down: return false
         }
     }
 }

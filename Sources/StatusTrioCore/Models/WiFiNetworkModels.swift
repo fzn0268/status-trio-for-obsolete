@@ -518,11 +518,11 @@ enum BluetoothSummary: Equatable, Sendable {
     /// to take them somewhere would be a promise the system will not keep.
     var rowAction: BluetoothSummaryRowAction? {
         switch self {
-        case .requestAuthorization: .requestAuthorization
-        case .authorizationDenied: .openPermissionSettings
+        case .requestAuthorization: return .requestAuthorization
+        case .authorizationDenied: return .openPermissionSettings
         case .initializing, .authorizationRestricted, .poweredOff, .unavailable,
              .readFailed, .noConnectedDevices, .devices:
-            nil
+            return nil
         }
     }
 

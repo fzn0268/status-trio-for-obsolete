@@ -96,17 +96,9 @@ final class CoreAudioOutputController: AudioOutputControlling {
             return false
         }
 
-        if #available(macOS 15.0, *) {
-            let device = AudioHardwareDevice(id: deviceID)
-            do {
-                try AudioHardwareSystem.shared.setDefaultOutputDevice(device)
-                try AudioHardwareSystem.shared.setDefaultSoundEffectsDevice(device)
-                return true
-            } catch {
-                return setLegacyDefaultOutputDevice(deviceID)
-            }
-        }
-
+        // `AudioHardwareDevice` and `AudioHardwareSystem` are not in the SDK this
+        // branch builds with, so the default output always moves through the
+        // property API.
         return setLegacyDefaultOutputDevice(deviceID)
     }
 
@@ -167,11 +159,6 @@ final class CoreAudioOutputController: AudioOutputControlling {
     }
 
     nonisolated private func canBeDefaultOutputDevice(_ deviceID: AudioDeviceID) -> Bool {
-        if #available(macOS 15.0, *) {
-            let device = AudioHardwareDevice(id: deviceID)
-            return (try? device.canBeDefaultOutputDevice) == true
-        }
-
         return audioDeviceCanBeDefault(deviceID)
     }
 

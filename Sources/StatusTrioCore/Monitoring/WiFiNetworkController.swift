@@ -57,7 +57,7 @@ private final class CoreWLANNetworkWorker: @unchecked Sendable, WiFiNetworkScann
     private let knownNetworkProvider: any WiFiKnownNetworkProviding
 
     init(
-        knownNetworkProvider: any WiFiKnownNetworkProviding = NetworksetupWiFiKnownNetworkProvider()
+        knownNetworkProvider: any WiFiKnownNetworkProviding = assumingMainActor { NetworksetupWiFiKnownNetworkProvider() }
     ) {
         self.knownNetworkProvider = knownNetworkProvider
     }
@@ -254,7 +254,7 @@ final class WiFiNetworkController: ObservableObject {
     private var lastNameAccess: WiFiNameAccess = .notDetermined
 
     init(
-        scanWorker: any WiFiNetworkScanning = CoreWLANNetworkWorker(),
+        scanWorker: any WiFiNetworkScanning = assumingMainActor { CoreWLANNetworkWorker() },
         now: @escaping () -> Date = Date.init,
         minimumScanInterval: TimeInterval = 30,
         periodicRefreshInterval: TimeInterval = 30,

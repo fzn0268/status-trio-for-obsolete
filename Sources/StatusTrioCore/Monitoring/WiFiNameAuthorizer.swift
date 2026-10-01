@@ -53,15 +53,15 @@ final class CoreLocationWiFiNameAuthorizer: NSObject, WiFiNameAuthorizing {
     private static func map(_ status: CLAuthorizationStatus) -> WiFiNameAccess {
         switch status {
         case .notDetermined:
-            .notDetermined
+            return .notDetermined
         case .authorizedAlways, .authorizedWhenInUse:
-            .authorized
+            return .authorized
         case .denied:
-            .denied
+            return .denied
         case .restricted:
-            .restricted
+            return .restricted
         @unknown default:
-            .restricted
+            return .restricted
         }
     }
 }

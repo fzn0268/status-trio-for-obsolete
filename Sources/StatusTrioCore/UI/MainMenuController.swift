@@ -93,7 +93,7 @@ final class MainMenuController: NSObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
+            assumingMainActor {
                 guard let self else { return }
                 self.isAppActive = isActive
                 self.updateInstallation()

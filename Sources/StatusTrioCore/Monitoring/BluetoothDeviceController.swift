@@ -274,17 +274,17 @@ enum BluetoothPairedDeviceReader {
 /// lifecycle; it is never used to enumerate devices. The paired-device database
 /// comes from the system profiler above instead.
 @MainActor
-final class CoreBluetoothStateMonitor: NSObject, @preconcurrency CBCentralManagerDelegate, BluetoothStateMonitoring {
+final class CoreBluetoothStateMonitor: NSObject, CBCentralManagerDelegate, BluetoothStateMonitoring {
     var onStateChange: ((BluetoothAuthorizationStatus, BluetoothManagerState) -> Void)?
     private var centralManager: CBCentralManager?
 
     var authorization: BluetoothAuthorizationStatus {
         switch CBManager.authorization {
-        case .notDetermined: .notDetermined
-        case .allowedAlways: .allowed
-        case .denied: .denied
-        case .restricted: .restricted
-        @unknown default: .restricted
+        case .notDetermined: return .notDetermined
+        case .allowedAlways: return .allowed
+        case .denied: return .denied
+        case .restricted: return .restricted
+        @unknown default: return .restricted
         }
     }
 
@@ -316,13 +316,13 @@ final class CoreBluetoothStateMonitor: NSObject, @preconcurrency CBCentralManage
 
     private func managerState() -> BluetoothManagerState {
         switch centralManager?.state ?? .unknown {
-        case .unknown: .unknown
-        case .resetting: .resetting
-        case .unsupported: .unsupported
-        case .unauthorized: .unauthorized
-        case .poweredOff: .poweredOff
-        case .poweredOn: .poweredOn
-        @unknown default: .unknown
+        case .unknown: return .unknown
+        case .resetting: return .resetting
+        case .unsupported: return .unsupported
+        case .unauthorized: return .unauthorized
+        case .poweredOff: return .poweredOff
+        case .poweredOn: return .poweredOn
+        @unknown default: return .unknown
         }
     }
 }
@@ -461,10 +461,10 @@ final class BluetoothDeviceController: ObservableObject {
     private var deviceActionTokenCounter: UInt64 = 0
 
     init(
-        worker: any BluetoothPairedDeviceReading = SystemProfilerBluetoothPairedDeviceWorker(),
-        appleBluetoothAudioDiagnosticReporter: AppleBluetoothAudioDiagnosticReporter = AppleBluetoothAudioDiagnosticReporter(),
-        stateMonitor: any BluetoothStateMonitoring = CoreBluetoothStateMonitor(),
-        batteryReader: any BluetoothBatteryReading = SystemProfilerBluetoothBatteryWorker(),
+        worker: any BluetoothPairedDeviceReading = assumingMainActor { SystemProfilerBluetoothPairedDeviceWorker() },
+        appleBluetoothAudioDiagnosticReporter: AppleBluetoothAudioDiagnosticReporter = assumingMainActor { AppleBluetoothAudioDiagnosticReporter() },
+        stateMonitor: any BluetoothStateMonitoring = assumingMainActor { CoreBluetoothStateMonitor() },
+        batteryReader: any BluetoothBatteryReading = assumingMainActor { SystemProfilerBluetoothBatteryWorker() },
         accessoryBatteryReader: (any BluetoothAccessoryBatteryReading)? = nil,
         notificationCenter: NotificationCenter = .default,
         workspaceNotificationCenter: NotificationCenter = NSWorkspace.shared.notificationCenter,
@@ -487,7 +487,7 @@ final class BluetoothDeviceController: ObservableObject {
         readTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
             try await Task.sleep(seconds: $0)
         },
-        actionPerformer: any BluetoothDeviceActionPerforming = IOBluetoothDeviceActionPerformer(),
+        actionPerformer: any BluetoothDeviceActionPerforming = assumingMainActor { IOBluetoothDeviceActionPerformer() },
         actionTimeout: TimeInterval = 10,
         actionTimeoutSleep: @escaping @Sendable (TimeInterval) async throws -> Void = {
             try await Task.sleep(seconds: $0)
@@ -616,10 +616,10 @@ final class BluetoothDeviceController: ObservableObject {
         isActive = true
         systemObservers.install(
             applicationActivated: { [weak self] in
-                Task { @MainActor in self?.refreshAfterSystemEvent() }
+                Task { @MainActor [weak self] in self?.refreshAfterSystemEvent() }
             },
             didWake: { [weak self] in
-                Task { @MainActor in self?.refreshAfterSystemEvent() }
+                Task { @MainActor [weak self] in self?.refreshAfterSystemEvent() }
             }
         )
         stateMonitor.start()
@@ -1099,14 +1099,9 @@ final class BluetoothDeviceController: ObservableObject {
         let generation = periodicRefreshGeneration
         periodicRefreshTask = Task { @MainActor [weak self] in
             defer {
-                // Only the task that is still current may clear the reference.
-                // A stop can cancel this task and start a replacement in the
-                // same main-actor turn, before this `defer` runs; clearing
-                // unconditionally would leave the replacement untracked and
-                // uncancellable.
-                if let self, self.periodicRefreshGeneration == generation {
-                    self.periodicRefreshTask = nil
-                }
+                // Swift 5.7 does not carry the task's main-actor isolation into a
+                // `defer` body, so the hop is stated here.
+                assumingMainActor { self?.clearPeriodicRefresh(for: generation) }
             }
             while !Task.isCancelled {
                 do {
@@ -1119,6 +1114,17 @@ final class BluetoothDeviceController: ObservableObject {
                 }
                 self.refresh()
             }
+        }
+    }
+
+    /// Only the task that is still current may clear the reference. A stop can
+    /// cancel this task and start a replacement in the same main-actor turn,
+    /// before its `defer` runs; clearing unconditionally would leave the
+    /// replacement untracked and uncancellable. The unwrap lives here because
+    /// Swift 5.7 cannot read the captured `self` from inside a `defer`.
+    private func clearPeriodicRefresh(for generation: UInt64) {
+        if periodicRefreshGeneration == generation {
+            periodicRefreshTask = nil
         }
     }
 
@@ -1140,7 +1146,7 @@ final class BluetoothDeviceController: ObservableObject {
         // The handler arrives on IOBluetooth's own thread, so it hops to the
         // main actor before touching controller state.
         isMonitoringConnectionEventNotifications = connectionEvents.start { [weak self] in
-            Task { @MainActor in self?.receiveConnectionEvent() }
+            Task { @MainActor [weak self] in self?.receiveConnectionEvent() }
         }
     }
 
@@ -1173,7 +1179,7 @@ final class BluetoothDeviceController: ObservableObject {
         // The handler arrives on the monitor's own queue, so it hops to the main
         // actor before touching controller state.
         isMonitoringAccessoryBatteryNotifications = accessoryBatteryEvents.start { [weak self] in
-            Task { @MainActor in self?.receiveAccessoryBatteryEvent() }
+            Task { @MainActor [weak self] in self?.receiveAccessoryBatteryEvent() }
         }
     }
 

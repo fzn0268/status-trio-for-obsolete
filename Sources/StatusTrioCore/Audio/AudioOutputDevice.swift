@@ -1,4 +1,5 @@
 import CoreAudio
+import Foundation
 
 struct AudioOutputDevice: Identifiable, Hashable, Sendable {
     let id: AudioDeviceID

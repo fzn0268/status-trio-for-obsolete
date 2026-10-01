@@ -71,21 +71,21 @@ enum AirPodsModel: Equatable, Sendable {
     var kind: AudioOutputDeviceKind {
         switch self {
         case .airPods:
-            .airPods
+            return .airPods
         case .airPodsGen3:
-            .airPodsGen3
+            return .airPodsGen3
         case .airPodsGen4:
-            .airPodsGen4
+            return .airPodsGen4
         case .airPodsGen5:
-            .airPodsGen5
+            return .airPodsGen5
         case .airPodsPro:
-            .airPodsPro
+            return .airPodsPro
         case .airPodsProGen1:
-            .airPodsProGen1
+            return .airPodsProGen1
         case .airPodsProGen3:
-            .airPodsProGen3
+            return .airPodsProGen3
         case .airPodsMax:
-            .airPodsMax
+            return .airPodsMax
         }
     }
 

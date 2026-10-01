@@ -69,7 +69,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
         isVisible: Bool = true,
         openSettings: @escaping () -> Void,
         quitAction: @escaping () -> Void,
-        chargingEffectClock: ChargingEffectClock = ChargingEffectClock()
+        chargingEffectClock: ChargingEffectClock = assumingMainActor { ChargingEffectClock() }
     ) {
         self.store = store
         self.settings = settings
@@ -113,7 +113,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
                     self.render(
                         appearance,
                         status: MenuBarStatus(snapshot: self.store.snapshot),
-                        phase: currentChargingEffectPhase
+                        phase: self.currentChargingEffectPhase
                     )
                 }
             }
@@ -129,8 +129,8 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
             .dropFirst()
             .sink { [weak self] enabled in
                 guard let self else { return }
-                testsChargingEffect = enabled
-                renderLatestSnapshot()
+                self.testsChargingEffect = enabled
+                self.renderLatestSnapshot()
             }
 
         localizationCancellable = localization.$resolvedLanguage
@@ -194,7 +194,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
     private func observeAppearanceChanges() {
         guard let button = statusItem.button else { return }
         appearanceObservations.append(button.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.renderLatestSnapshot()
             }
         })
@@ -375,7 +375,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
             // Local event monitors run on the main thread. Keep the non-Sendable
             // event inside this synchronous callback while hopping isolation.
             let boxedEvent = UncheckedSendableNSEvent(event: event)
-            let shouldConsume = MainActor.assumeIsolated {
+            let shouldConsume = assumingMainActor {
                 self?.shouldConsumeVolumeScrollWheel(boxedEvent.event) ?? false
             }
             return shouldConsume ? nil : event

@@ -20,29 +20,29 @@ enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     var nativeName: String {
         switch self {
         case .english:
-            "English"
+            return "English"
         case .simplifiedChinese:
-            "简体中文"
+            return "简体中文"
         case .traditionalChinese:
-            "繁體中文"
+            return "繁體中文"
         case .japanese:
-            "日本語"
+            return "日本語"
         case .korean:
-            "한국어"
+            return "한국어"
         case .spanish:
-            "Español"
+            return "Español"
         case .french:
-            "Français"
+            return "Français"
         case .german:
-            "Deutsch"
+            return "Deutsch"
         case .italian:
-            "Italiano"
+            return "Italiano"
         case .brazilianPortuguese:
-            "Português (Brasil)"
+            return "Português (Brasil)"
         case .russian:
-            "Русский"
+            return "Русский"
         case .arabic:
-            "العربية"
+            return "العربية"
         }
     }
 

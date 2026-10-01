@@ -116,7 +116,7 @@ final class DDCDisplayTransport: DDCVolumeTransport {
             case "DCPAVServiceProxy" where Self.stringProperty("Location", entry: entry) == "External":
                 externalServices.append(entry)
             default:
-                IOObjectRelease(entry)
+                return IOObjectRelease(entry)
             }
         }
         defer { externalServices.forEach { _ = IOObjectRelease($0) } }

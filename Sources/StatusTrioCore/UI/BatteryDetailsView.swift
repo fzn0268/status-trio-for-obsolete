@@ -59,7 +59,7 @@ struct BatteryDetailsView: View {
                 }
                 if !battery.isConnectedToPower {
                     row(.batteryDetailsRemaining, details.remainingMinutes.map {
-                        Self.remainingTimeText(minutes: $0, locale: localization.resolvedLanguage.locale)
+                        Self.remainingTimeText(minutes: $0)
                     } ?? localization.string(.batteryDetailsUnavailable))
                 }
                 if let count = details.cycleCount {
@@ -91,16 +91,13 @@ struct BatteryDetailsView: View {
     /// goes through `DateComponentsFormatter`, which renders the same
     /// abbreviated "1h 30m" on every release the app supports.
     ///
-    /// A formatter only takes the app's language override through `locale` on the
-    /// newer releases; below that it uses the user's current locale, which is what
-    /// the row did before the override existed.
-    private static func remainingTimeText(minutes: Int, locale: Locale) -> String {
+    /// `DateComponentsFormatter` has no `locale` property in the SDK this branch
+    /// builds against, so the row follows the user's current locale instead of
+    /// the app's language override.
+    private static func remainingTimeText(minutes: Int) -> String {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.hour, .minute]
         formatter.unitsStyle = .abbreviated
-        if #available(macOS 15.0, *) {
-            formatter.locale = locale
-        }
         return formatter.string(from: TimeInterval(minutes * 60)) ?? ""
     }
 }

@@ -619,21 +619,19 @@ enum StatusIconRenderer {
     ) -> CGColor {
         switch role {
         case .foreground:
-            foreground
+            return foreground
         case .critical:
-            criticalColor
+            return criticalColor
         case .charging:
-            if usesDarkStatusPalette(foreground: foreground) {
-                CGColor(red: 31.0 / 255.0, green: 143.0 / 255.0, blue: 61.0 / 255.0, alpha: 1)
-            } else {
-                CGColor(red: 52.0 / 255.0, green: 199.0 / 255.0, blue: 89.0 / 255.0, alpha: 1)
-            }
+            // Swift 5.7 has no `if` expression, so the palette choice is a
+            // ternary instead.
+            return usesDarkStatusPalette(foreground: foreground)
+                ? CGColor(red: 31.0 / 255.0, green: 143.0 / 255.0, blue: 61.0 / 255.0, alpha: 1)
+                : CGColor(red: 52.0 / 255.0, green: 199.0 / 255.0, blue: 89.0 / 255.0, alpha: 1)
         case .lowPower:
-            if usesDarkStatusPalette(foreground: foreground) {
-                CGColor(red: 201.0 / 255.0, green: 151.0 / 255.0, blue: 0, alpha: 1)
-            } else {
-                CGColor(red: 242.0 / 255.0, green: 185.0 / 255.0, blue: 0, alpha: 1)
-            }
+            return usesDarkStatusPalette(foreground: foreground)
+                ? CGColor(red: 201.0 / 255.0, green: 151.0 / 255.0, blue: 0, alpha: 1)
+                : CGColor(red: 242.0 / 255.0, green: 185.0 / 255.0, blue: 0, alpha: 1)
         }
     }
 

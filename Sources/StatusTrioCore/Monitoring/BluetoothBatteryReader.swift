@@ -24,8 +24,8 @@ extension Array where Element == BluetoothBatterySegment {
     var plainText: String {
         map { segment in
             switch segment {
-            case .text(let value): value
-            case .symbol(_, let label): label
+            case .text(let value): return value
+            case .symbol(_, let label): return label
             }
         }
         .joined()

@@ -76,9 +76,9 @@ private enum AudioInputMonitorCommand: Sendable {
 
   var error: AudioInputError {
     switch self {
-    case .select: .switchFailed
-    case .scalar: .volumeFailed
-    case .mute: .muteFailed
+    case .select: return .switchFailed
+    case .scalar: return .volumeFailed
+    case .mute: return .muteFailed
     }
   }
 }
@@ -140,7 +140,7 @@ final class AudioInputMonitor: AudioInputMonitoring {
   private var usageReadInFlight = false
 
   init(
-    hardware: any AudioInputHardware = CoreAudioInputHardware(),
+    hardware: any AudioInputHardware = assumingMainActor { CoreAudioInputHardware() },
     commandTimeout: TimeInterval = 2,
     usagePollInterval: TimeInterval = 1,
     usageSleep: @escaping @Sendable (TimeInterval) async throws -> Void = { duration in
@@ -150,9 +150,8 @@ final class AudioInputMonitor: AudioInputMonitoring {
       try await Task.sleep(seconds: duration)
     }
   ) {
-    let (updates, continuation) = AsyncStream.makeStream(
-      of: AudioInputStatus.self,
-      bufferingPolicy: .bufferingNewest(1)
+    let (updates, continuation) = MonitorStream.make(
+      of: AudioInputStatus.self
     )
     self.updates = updates
     self.continuation = continuation

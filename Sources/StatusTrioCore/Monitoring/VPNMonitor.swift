@@ -116,8 +116,8 @@ final class VPNMonitor: VPNMonitoring {
     private var lastPublished: VPNStatus?
 
     init(
-        reader: any VPNReading = SystemVPNReader(),
-        observer: any NetworkChangeObserving = SystemNetworkChangeObserver()
+        reader: any VPNReading = assumingMainActor { SystemVPNReader() },
+        observer: any NetworkChangeObserving = assumingMainActor { SystemNetworkChangeObserver() }
     ) {
         self.reader = reader
         self.observer = observer

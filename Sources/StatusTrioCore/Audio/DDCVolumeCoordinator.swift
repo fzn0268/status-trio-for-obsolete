@@ -40,7 +40,7 @@ final class DDCVolumeCoordinator {
     private var readToken: UInt64 = 0
 
     init(
-        transport: DDCVolumeTransport = DDCDisplayTransport(),
+        transport: DDCVolumeTransport = assumingMainActor { DDCDisplayTransport() },
         debounce: TimeInterval = 0.15,
         readWatchdog: TimeInterval = 2,
         beforeReadValidation: @escaping @Sendable () -> Void = {},
