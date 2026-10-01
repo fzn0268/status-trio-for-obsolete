@@ -22,11 +22,9 @@ struct VolumeControlsView: View {
             HStack(alignment: .top, spacing: 10) {
                 VolumeOutputSummaryView(volume: volume)
 
-                Button(
-                    localization.string(.volumeActionOpenSettings),
-                    systemImage: "gearshape",
-                    action: onOpenSoundSettings
-                )
+                Button(action: onOpenSoundSettings) {
+                    Label(localization.string(.volumeActionOpenSettings), systemImage: "gearshape")
+                }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)

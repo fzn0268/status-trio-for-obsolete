@@ -248,7 +248,11 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
             )
         }
         let hostingController = NSHostingController(rootView: rootView)
-        hostingController.sizingOptions = [.preferredContentSize]
+        // `sizingOptions` is macOS 13+; the hosting controller already keeps its
+        // preferred content size in sync for the popover on older releases.
+        if #available(macOS 13.0, *) {
+            hostingController.sizingOptions = [.preferredContentSize]
+        }
         popover.contentViewController = hostingController
     }
 

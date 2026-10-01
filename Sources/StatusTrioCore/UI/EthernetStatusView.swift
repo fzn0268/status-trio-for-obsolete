@@ -46,11 +46,9 @@ struct EthernetStatusView: View {
             .accessibilityLabel(title)
             .accessibilityValue(subtitle)
 
-            Button(
-                localization.string(.ethernetActionOpenSettings),
-                systemImage: "gearshape",
-                action: onOpenNetworkSettings
-            )
+            Button(action: onOpenNetworkSettings) {
+                Label(localization.string(.ethernetActionOpenSettings), systemImage: "gearshape")
+            }
             .labelStyle(.iconOnly)
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)

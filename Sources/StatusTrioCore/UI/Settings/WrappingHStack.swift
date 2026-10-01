@@ -6,7 +6,29 @@ import SwiftUI
 /// Settings cards are narrow and every label is translated into twelve
 /// languages, so an action row that fits in English can overflow in German or
 /// Russian. Wrapping keeps every control reachable without shrinking it.
-struct WrappingHStack: Layout {
+///
+/// The wrapping itself needs `Layout`, which is macOS 13+, so on macOS 12 this
+/// degrades to a plain row that the window can still compress.
+struct WrappingHStack<Content: View>: View {
+    var spacing: CGFloat = 8
+    var rowSpacing: CGFloat = 8
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        if #available(macOS 13.0, *) {
+            WrappingHStackLayout(spacing: spacing, rowSpacing: rowSpacing) {
+                content
+            }
+        } else {
+            HStack(spacing: spacing) {
+                content
+            }
+        }
+    }
+}
+
+@available(macOS 13.0, *)
+struct WrappingHStackLayout: Layout {
     var spacing: CGFloat = 8
     var rowSpacing: CGFloat = 8
 

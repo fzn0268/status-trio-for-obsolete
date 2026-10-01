@@ -105,14 +105,24 @@ struct SettingsIcon: View {
     var tint: Color = .accentColor
 
     var body: some View {
-        RoundedRectangle(cornerRadius: SettingsMetrics.iconCorner, style: .continuous)
-            .fill(tint.gradient)
+        icon
             .frame(width: SettingsMetrics.iconSize, height: SettingsMetrics.iconSize)
             .overlay(
                 Image(systemName: CompatibleSymbol.resolve(symbol))
                     .font(.system(size: SettingsMetrics.iconSize * 0.52, weight: .semibold))
                     .foregroundStyle(.white)
             )
+    }
+
+    /// `Color.gradient` is macOS 13+, so on macOS 12 the squircle is a flat tint.
+    @ViewBuilder private var icon: some View {
+        if #available(macOS 13.0, *) {
+            RoundedRectangle(cornerRadius: SettingsMetrics.iconCorner, style: .continuous)
+                .fill(tint.gradient)
+        } else {
+            RoundedRectangle(cornerRadius: SettingsMetrics.iconCorner, style: .continuous)
+                .fill(tint)
+        }
     }
 }
 

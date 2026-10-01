@@ -43,11 +43,9 @@ struct WiFiStatusView: View {
             .accessibilityLabel(wifiAccessibilityLabel)
             .accessibilityValue(WiFiSummaryPresentation.measurements(wifi, connection: connection, localization: localization) ?? "")
 
-            Button(
-                localization.string(.wifiActionOpenSettings),
-                systemImage: "gearshape",
-                action: onOpenWiFiSettings
-            )
+            Button(action: onOpenWiFiSettings) {
+                Label(localization.string(.wifiActionOpenSettings), systemImage: "gearshape")
+            }
             .labelStyle(.iconOnly)
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)

@@ -62,7 +62,9 @@ struct BluetoothStatusView: View {
                 .help(localization.string(.bluetoothRefresh))
                 .accessibilityLabel(localization.string(.bluetoothRefresh))
 
-                Button(localization.string(.bluetoothActionOpenSettings), systemImage: "gearshape", action: onOpenBluetoothSettings)
+                Button(action: onOpenBluetoothSettings) {
+                    Label(localization.string(.bluetoothActionOpenSettings), systemImage: "gearshape")
+                }
                     .labelStyle(.iconOnly)
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)

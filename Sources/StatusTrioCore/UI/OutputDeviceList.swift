@@ -51,7 +51,7 @@ struct OutputDeviceList: View {
 
                 if model.canToggleExpansion {
                     Button {
-                        withAnimation(reduceMotion ? nil : .snappy(duration: 0.2)) {
+                        withAnimation(reduceMotion ? nil : .compatibleSnappy(duration: 0.2)) {
                             isExpanded.toggle()
                         }
                     } label: {

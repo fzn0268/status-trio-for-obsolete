@@ -73,7 +73,11 @@ final class OnboardingWindowController: NSWindowController, NSWindowDelegate {
         }
 
         let hostingController = NSHostingController(rootView: rootView)
-        hostingController.sizingOptions = [.preferredContentSize]
+        // `sizingOptions` is macOS 13+; before it the hosting controller's size
+        // for a window content view is whatever the SwiftUI root reports.
+        if #available(macOS 13.0, *) {
+            hostingController.sizingOptions = [.preferredContentSize]
+        }
         window.contentViewController = hostingController
         hostingController.view.layoutSubtreeIfNeeded()
         if hostingController.preferredContentSize.height > 0 {

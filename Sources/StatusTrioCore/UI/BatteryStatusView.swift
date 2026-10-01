@@ -45,11 +45,9 @@ struct BatteryStatusView: View {
             .accessibilityValue(StatusPresentation.batterySubtitle(battery, localization: localization))
 
             if battery.isPresent {
-                Button(
-                    localization.string(.batteryActionOpenSettings),
-                    systemImage: "gearshape",
-                    action: onOpenBatterySettings
-                )
+                Button(action: onOpenBatterySettings) {
+                    Label(localization.string(.batteryActionOpenSettings), systemImage: "gearshape")
+                }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
