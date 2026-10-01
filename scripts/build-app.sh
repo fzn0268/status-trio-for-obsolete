@@ -11,6 +11,7 @@ BUILD_NUMBER="${BUILD_NUMBER:-}"
 SU_FEED_URL="${SU_FEED_URL:-}"
 DEVELOPMENT_CODENAME="${DEVELOPMENT_CODENAME:-}"
 UNIVERSAL_BUILD="${UNIVERSAL_BUILD:-0}"
+STATUS_TRIO_LEGACY_MACOS="${STATUS_TRIO_LEGACY_MACOS:-0}"
 
 case "$OPEN_APP" in
     open|no-open) ;;
@@ -53,6 +54,14 @@ case "$UNIVERSAL_BUILD" in
         ;;
 esac
 
+case "$STATUS_TRIO_LEGACY_MACOS" in
+    0|1) ;;
+    *)
+        echo "Error: STATUS_TRIO_LEGACY_MACOS must be 0 or 1." >&2
+        exit 2
+        ;;
+esac
+
 cd "$ROOT"
 
 # SwiftPM's build system can record the deployment target in LC_BUILD_VERSION's
@@ -62,8 +71,12 @@ cd "$ROOT"
 # would leave a complete-looking, runnable bundle built with the wrong SDK.
 #
 # STATUS_TRIO_SDK_VERSION_OVERRIDE exists only so this guard can be tested.
+#
+# STATUS_TRIO_LEGACY_MACOS=1 is the personal macOS 12 branch's escape hatch: it
+# accepts the pre-Tahoe appearance on purpose, because the alternative is not
+# shipping at all on that system. The release path never sets it.
 SDK_VERSION="${STATUS_TRIO_SDK_VERSION_OVERRIDE:-$(xcrun --sdk macosx --show-sdk-version)}"
-if [[ "${SDK_VERSION%%.*}" -lt 26 ]]; then
+if [[ "${SDK_VERSION%%.*}" -lt 26 && "$STATUS_TRIO_LEGACY_MACOS" != "1" ]]; then
     echo "Error: Status Trio must be built with the macOS 26 SDK or newer; found ${SDK_VERSION}." >&2
     echo "       An older SDK silently ships the pre-Tahoe popover appearance." >&2
     exit 2
@@ -103,7 +116,10 @@ done <<'SIZES'
 SIZES
 
 rm -rf "$APP_DIR"
-mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources" "$CONTENTS/Frameworks"
+mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources"
+if [[ "$STATUS_TRIO_LEGACY_MACOS" != "1" ]]; then
+    mkdir -p "$CONTENTS/Frameworks"
+fi
 
 CORE_RESOURCE_BUNDLE="$BIN_PATH/StatusTrio_StatusTrioCore.bundle"
 if [[ ! -d "$CORE_RESOURCE_BUNDLE" ]]; then
@@ -114,16 +130,21 @@ fi
 cp "$BIN_PATH/StatusTrio" "$CONTENTS/MacOS/StatusTrio"
 cp -R "$CORE_RESOURCE_BUNDLE" "$CONTENTS/Resources/"
 
-SPARKLE_FRAMEWORK_SOURCE="$(find "$ROOT/.build/artifacts" -path '*/Sparkle.xcframework/macos-*/Sparkle.framework' -type d -print -quit)"
-if [[ -z "$SPARKLE_FRAMEWORK_SOURCE" ]]; then
-    echo "Error: missing Sparkle.framework under .build/artifacts." >&2
-    exit 1
-fi
+# The legacy branch drops Sparkle entirely: the package cannot be resolved from
+# a machine without network access to the vendor, so UpdaterManager is a stub and
+# there is no framework to embed or rpath to add.
+if [[ "$STATUS_TRIO_LEGACY_MACOS" != "1" ]]; then
+    SPARKLE_FRAMEWORK_SOURCE="$(find "$ROOT/.build/artifacts" -path '*/Sparkle.xcframework/macos-*/Sparkle.framework' -type d -print -quit)"
+    if [[ -z "$SPARKLE_FRAMEWORK_SOURCE" ]]; then
+        echo "Error: missing Sparkle.framework under .build/artifacts." >&2
+        exit 1
+    fi
 
-ditto "$SPARKLE_FRAMEWORK_SOURCE" "$CONTENTS/Frameworks/Sparkle.framework"
+    ditto "$SPARKLE_FRAMEWORK_SOURCE" "$CONTENTS/Frameworks/Sparkle.framework"
 
-if ! otool -l "$CONTENTS/MacOS/StatusTrio" | grep -Fq 'path @executable_path/../Frameworks'; then
-    install_name_tool -add_rpath '@executable_path/../Frameworks' "$CONTENTS/MacOS/StatusTrio"
+    if ! otool -l "$CONTENTS/MacOS/StatusTrio" | grep -Fq 'path @executable_path/../Frameworks'; then
+        install_name_tool -add_rpath '@executable_path/../Frameworks' "$CONTENTS/MacOS/StatusTrio"
+    fi
 fi
 
 cp "$ROOT/Support/Info.plist" "$CONTENTS/Info.plist"
@@ -201,13 +222,21 @@ if [[ "$BUILT_MINOS" != "$DECLARED_MINOS" ]]; then
 fi
 
 VTMP_BINARY="$(mktemp "${TMPDIR:-/tmp}/StatusTrio.vtool.XXXXXX")"
-xcrun vtool -set-build-version macos "$BUILT_MINOS" 26.0 -replace -output "$VTMP_BINARY" "$CONTENTS/MacOS/StatusTrio"
-mv "$VTMP_BINARY" "$CONTENTS/MacOS/StatusTrio"
-chmod +x "$CONTENTS/MacOS/StatusTrio"
+if [[ "$STATUS_TRIO_LEGACY_MACOS" == "1" ]]; then
+    # Stamping 26.0 into a bundle built against an older SDK would tell macOS 12
+    # to use a design language that predates it, so the field is left as built.
+    # minos is still verified below; only the SDK-floor assertion is relaxed.
+    rm -f "$VTMP_BINARY"
+    bash "$ROOT/scripts/verify-platform-version.sh" "$CONTENTS/MacOS/StatusTrio" "$DECLARED_MINOS" 0
+else
+    xcrun vtool -set-build-version macos "$BUILT_MINOS" 26.0 -replace -output "$VTMP_BINARY" "$CONTENTS/MacOS/StatusTrio"
+    mv "$VTMP_BINARY" "$CONTENTS/MacOS/StatusTrio"
+    chmod +x "$CONTENTS/MacOS/StatusTrio"
 
-# The declared minimum is the expected value for every slice, so a slice that
-# alone requires a newer macOS is caught here rather than by a user.
-bash "$ROOT/scripts/verify-platform-version.sh" "$CONTENTS/MacOS/StatusTrio" "$DECLARED_MINOS"
+    # The declared minimum is the expected value for every slice, so a slice that
+    # alone requires a newer macOS is caught here rather than by a user.
+    bash "$ROOT/scripts/verify-platform-version.sh" "$CONTENTS/MacOS/StatusTrio" "$DECLARED_MINOS"
+fi
 
 SIGNING_IDENTITY="${CODE_SIGN_IDENTITY:--}"
 SIGNING_ARGS=(--force --deep --sign "$SIGNING_IDENTITY")
@@ -218,7 +247,9 @@ if [[ "$SIGNING_IDENTITY" != "-" ]]; then
     fi
 fi
 
-codesign "${SIGNING_ARGS[@]}" "$CONTENTS/Frameworks/Sparkle.framework"
+if [[ "$STATUS_TRIO_LEGACY_MACOS" != "1" ]]; then
+    codesign "${SIGNING_ARGS[@]}" "$CONTENTS/Frameworks/Sparkle.framework"
+fi
 codesign "${SIGNING_ARGS[@]}" "$APP_DIR"
 codesign --verify --deep --strict --verbose=2 "$APP_DIR"
 
