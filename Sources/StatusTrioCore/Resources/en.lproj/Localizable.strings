@@ -18,6 +18,7 @@
 "settings.launchAtLogin" = "Launch at login";
 "settings.launchAtLogin.description" = "Start Status Trio automatically when you log in.";
 "settings.launchAtLogin.requiresApproval" = "Waiting for approval. Allow Status Trio in System Settings › General › Login Items.";
+"settings.launchAtLogin.requiresMacOS13" = "Requires macOS 13 or later.";
 "settings.launchAtLogin.openLoginItems" = "Open Login Items";
 "settings.launchAtLogin.failure" = "Couldn’t update the login item. Manage it in System Settings › General › Login Items.";
 "settings.appIconPlacement" = "Show Status Trio In";

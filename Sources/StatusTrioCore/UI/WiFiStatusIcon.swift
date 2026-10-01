@@ -9,7 +9,7 @@ struct WiFiStatusIcon: View {
             switch wifi.state {
             case .connected:
                 let bars = StatusMappings.wifiBars(rssi: wifi.rssi)
-                Image(systemName: "wifi", variableValue: max(0.25, Double(bars) / 3.0))
+                VariableValueSymbol(name: "wifi", variableValue: max(0.25, Double(bars) / 3.0))
             case .off, .unavailable:
                 Image(systemName: "wifi.slash")
             case .noInternet:

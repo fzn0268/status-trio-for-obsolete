@@ -1134,11 +1134,8 @@ enum StatusIconRenderer {
         let config = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .semibold)
             .applying(.init(hierarchicalColor: foreground))
 
-        return NSImage(
-            systemSymbolName: name,
-            variableValue: variableValue,
-            accessibilityDescription: nil
-        )?.withSymbolConfiguration(config)
+        return CompatibleSymbol.image(name, variableValue: variableValue)?
+            .withSymbolConfiguration(config)
     }
 
     private static func drawVolume(

@@ -111,7 +111,7 @@ struct MenuBarPreviewBar<TrailingAccessory: View>: View {
 
     private var leftContext: some View {
         HStack(spacing: 6) {
-            Image(systemName: "apple.logo")
+            Image(systemName: CompatibleSymbol.resolve("apple.logo"))
                 .font(.system(size: 12, weight: .medium))
             Text(verbatim: "Finder")
                 .font(.system(size: 12, weight: .medium))

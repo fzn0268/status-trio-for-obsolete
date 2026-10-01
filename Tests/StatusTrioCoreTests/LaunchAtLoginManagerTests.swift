@@ -40,6 +40,23 @@ final class LaunchAtLoginManagerTests: XCTestCase {
         )
     }
 
+    func testLoginItemSupportNeedsBothABundleAndSMAppService() {
+        // Two separate reasons a login item cannot be managed, and the settings
+        // row only explains the version one: a process that is not an app bundle
+        // gets a greyed row with no note, while a release with no SMAppService at
+        // all — macOS 12 and earlier — must not offer a toggle either way.
+        XCTAssertFalse(SystemLaunchAtLoginService.isSupported(bundledAsApp: false))
+
+        let manager = LaunchAtLoginManager(
+            service: FakeLaunchAtLoginService(status: .notRegistered)
+        )
+        XCTAssertEqual(
+            SystemLaunchAtLoginService.isSupported(bundledAsApp: true),
+            manager.isSupportedBySystem,
+            "A bundled app is only supported where the system has the API"
+        )
+    }
+
     func testNotRegisteredStateStillAllowsRegistering() {
         let service = FakeLaunchAtLoginService(status: .notRegistered)
         let manager = LaunchAtLoginManager(service: service)

@@ -30,11 +30,19 @@ protocol LaunchAtLoginServicing: AnyObject {
 @MainActor
 final class SystemLaunchAtLoginService: LaunchAtLoginServicing {
     var isSupported: Bool {
-        Bundle.main.bundleURL.pathExtension == "app"
+        Self.isSupported(bundledAsApp: Bundle.main.bundleURL.pathExtension == "app")
+    }
+
+    /// `SMAppService` is macOS 13+, so below it there is no login-item API for
+    /// the app to call and the row has nothing to toggle.
+    static func isSupported(bundledAsApp: Bool) -> Bool {
+        guard #available(macOS 13.0, *) else { return false }
+        return bundledAsApp
     }
 
     var status: LaunchAtLoginStatus {
-        Self.status(for: SMAppService.mainApp.status)
+        guard #available(macOS 13.0, *) else { return .notRegistered }
+        return Self.status(for: SMAppService.mainApp.status)
     }
 
     /// `SMAppService` answers `notFound` for an app that has never registered a
@@ -54,14 +62,17 @@ final class SystemLaunchAtLoginService: LaunchAtLoginServicing {
     }
 
     func register() throws {
+        guard #available(macOS 13.0, *) else { return }
         try SMAppService.mainApp.register()
     }
 
     func unregister() throws {
+        guard #available(macOS 13.0, *) else { return }
         try SMAppService.mainApp.unregister()
     }
 
     func openLoginItemsSettings() {
+        guard #available(macOS 13.0, *) else { return }
         SMAppService.openSystemSettingsLoginItems()
     }
 }
@@ -91,6 +102,13 @@ final class LaunchAtLoginManager: ObservableObject {
     /// False when macOS cannot manage a login item for this process.
     var isAvailable: Bool {
         service.isSupported
+    }
+
+    /// False on a release that has no login-item API at all, which the settings
+    /// row explains instead of only greying the toggle out.
+    var isSupportedBySystem: Bool {
+        if #available(macOS 13.0, *) { return true }
+        return false
     }
 
     var isEnabledBinding: Binding<Bool> {

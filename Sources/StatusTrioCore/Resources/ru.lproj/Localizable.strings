@@ -18,6 +18,7 @@
 "settings.launchAtLogin" = "Запускать при входе";
 "settings.launchAtLogin.description" = "Автоматически запускать Status Trio при входе в систему.";
 "settings.launchAtLogin.requiresApproval" = "Ожидается подтверждение. Разрешите Status Trio в «Системные настройки › Основные › Объекты входа».";
+"settings.launchAtLogin.requiresMacOS13" = "Требуется macOS 13 или новее.";
 "settings.launchAtLogin.openLoginItems" = "Открыть объекты входа";
 "settings.launchAtLogin.failure" = "Не удалось обновить объект входа. Управляйте им в «Системные настройки › Основные › Объекты входа».";
 "settings.appIconPlacement" = "Показывать Status Trio в";

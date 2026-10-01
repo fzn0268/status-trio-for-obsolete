@@ -183,7 +183,7 @@ struct WiFiNetworkListView: View {
             if bars == 0 {
                 Image(systemName: "wifi.exclamationmark")
             } else {
-                Image(systemName: "wifi", variableValue: max(0.25, Double(bars) / 3.0))
+                VariableValueSymbol(name: "wifi", variableValue: max(0.25, Double(bars) / 3.0))
             }
         } else {
             Image(systemName: "wifi.exclamationmark")

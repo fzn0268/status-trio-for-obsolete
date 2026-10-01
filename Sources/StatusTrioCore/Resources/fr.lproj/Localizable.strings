@@ -18,6 +18,7 @@
 "settings.launchAtLogin" = "Lancer à l’ouverture de session";
 "settings.launchAtLogin.description" = "Démarre Status Trio automatiquement à l’ouverture de session.";
 "settings.launchAtLogin.requiresApproval" = "En attente d’approbation. Autorisez Status Trio dans Réglages Système › Général › Ouverture.";
+"settings.launchAtLogin.requiresMacOS13" = "Nécessite macOS 13 ou version ultérieure.";
 "settings.launchAtLogin.openLoginItems" = "Ouvrir les éléments d’ouverture";
 "settings.launchAtLogin.failure" = "Impossible de mettre à jour l’élément d’ouverture. Gérez-le dans Réglages Système › Général › Ouverture.";
 "settings.appIconPlacement" = "Afficher Status Trio dans";

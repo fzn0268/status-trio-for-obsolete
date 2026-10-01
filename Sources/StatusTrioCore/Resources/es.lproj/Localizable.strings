@@ -18,6 +18,7 @@
 "settings.launchAtLogin" = "Abrir al iniciar sesión";
 "settings.launchAtLogin.description" = "Inicia Status Trio automáticamente al iniciar sesión.";
 "settings.launchAtLogin.requiresApproval" = "Pendiente de aprobación. Permite Status Trio en Ajustes del Sistema › General › Ítems de inicio de sesión.";
+"settings.launchAtLogin.requiresMacOS13" = "Requiere macOS 13 o posterior.";
 "settings.launchAtLogin.openLoginItems" = "Abrir ítems de inicio";
 "settings.launchAtLogin.failure" = "No se pudo actualizar el ítem de inicio. Puedes gestionarlo en Ajustes del Sistema › General › Ítems de inicio de sesión.";
 "settings.appIconPlacement" = "Mostrar Status Trio en";

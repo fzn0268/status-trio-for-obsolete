@@ -77,6 +77,7 @@ enum LocalizationKey: String, CaseIterable, Hashable, Sendable {
     case settingsLaunchAtLogin = "settings.launchAtLogin"
     case settingsLaunchAtLoginDescription = "settings.launchAtLogin.description"
     case settingsLaunchAtLoginRequiresApproval = "settings.launchAtLogin.requiresApproval"
+    case settingsLaunchAtLoginRequiresMacOS13 = "settings.launchAtLogin.requiresMacOS13"
     case settingsLaunchAtLoginOpenLoginItems = "settings.launchAtLogin.openLoginItems"
     case settingsLaunchAtLoginFailure = "settings.launchAtLogin.failure"
     case settingsAppIconPlacement = "settings.appIconPlacement"

@@ -18,6 +18,7 @@
 "settings.launchAtLogin" = "Beim Anmelden starten";
 "settings.launchAtLogin.description" = "Startet Status Trio automatisch bei der Anmeldung.";
 "settings.launchAtLogin.requiresApproval" = "Warte auf Freigabe. Erlaube Status Trio in Systemeinstellungen › Allgemein › Anmeldeobjekte.";
+"settings.launchAtLogin.requiresMacOS13" = "Erfordert macOS 13 oder neuer.";
 "settings.launchAtLogin.openLoginItems" = "Anmeldeobjekte öffnen";
 "settings.launchAtLogin.failure" = "Das Anmeldeobjekt konnte nicht aktualisiert werden. Verwalte es in Systemeinstellungen › Allgemein › Anmeldeobjekte.";
 "settings.appIconPlacement" = "Status Trio anzeigen in";

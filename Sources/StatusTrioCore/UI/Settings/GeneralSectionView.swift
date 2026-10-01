@@ -59,6 +59,18 @@ struct GeneralSectionView: View {
                 )
                 .disabled(!launchAtLogin.isAvailable)
 
+                if !launchAtLogin.isSupportedBySystem {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text(localization.string(.settingsLaunchAtLoginRequiresMacOS13))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, SettingsMetrics.rowPaddingH)
+                    .padding(.bottom, 6)
+                }
+
                 if launchAtLogin.status == .requiresApproval {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")

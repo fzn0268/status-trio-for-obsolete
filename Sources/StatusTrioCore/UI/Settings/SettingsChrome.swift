@@ -109,7 +109,7 @@ struct SettingsIcon: View {
             .fill(tint.gradient)
             .frame(width: SettingsMetrics.iconSize, height: SettingsMetrics.iconSize)
             .overlay(
-                Image(systemName: symbol)
+                Image(systemName: CompatibleSymbol.resolve(symbol))
                     .font(.system(size: SettingsMetrics.iconSize * 0.52, weight: .semibold))
                     .foregroundStyle(.white)
             )
@@ -330,30 +330,24 @@ struct SettingsPictureRow<T: Hashable & Identifiable, Leading: View, Preview: Vi
                         // The selection ring above already marks the picked card,
                         // so the system focus effect would draw a second, slightly
                         // offset ring around it on every click.
-                        .focusEffectDisabled()
-                        .onKeyPress(.leftArrow) {
+                        .withoutFocusEffect()
+                        .onSelectionKey(.leftArrow) {
                             selectRelative(offset: backwardStep)
-                            return .handled
                         }
-                        .onKeyPress(.rightArrow) {
+                        .onSelectionKey(.rightArrow) {
                             selectRelative(offset: forwardStep)
-                            return .handled
                         }
-                        .onKeyPress(.upArrow) {
+                        .onSelectionKey(.upArrow) {
                             selectRelative(offset: -1)
-                            return .handled
                         }
-                        .onKeyPress(.downArrow) {
+                        .onSelectionKey(.downArrow) {
                             selectRelative(offset: 1)
-                            return .handled
                         }
-                        .onKeyPress(.space) {
+                        .onSelectionKey(.space) {
                             selectOption(option)
-                            return .handled
                         }
-                        .onKeyPress(.return) {
+                        .onSelectionKey(.returnKey) {
                             selectOption(option)
-                            return .handled
                         }
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel(caption(option))
@@ -377,7 +371,7 @@ struct SettingsPictureRow<T: Hashable & Identifiable, Leading: View, Preview: Vi
     }
 
     private func optionSymbolBadge(_ symbol: String) -> some View {
-        Image(systemName: symbol)
+        Image(systemName: CompatibleSymbol.resolve(symbol))
             .font(.system(size: 8, weight: .semibold))
             .foregroundStyle(.primary)
             .frame(width: 16, height: 16)

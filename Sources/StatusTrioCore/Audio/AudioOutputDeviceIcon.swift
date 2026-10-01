@@ -444,7 +444,7 @@ enum AudioOutputDeviceIcon {
     private static func builtInSpeakerCandidates(for host: HostMacKind) -> [String] {
         switch host {
         case .laptop:
-            ["macbook"]
+            ["macbook", "laptopcomputer"]
         case .mini:
             ["macmini.gen2", "macmini", "desktopcomputer"]
         case .studio:

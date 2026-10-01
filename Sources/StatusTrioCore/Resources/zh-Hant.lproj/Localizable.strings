@@ -18,6 +18,7 @@
 "settings.launchAtLogin" = "開機時啟動";
 "settings.launchAtLogin.description" = "登入系統後自動啟動 Status Trio。";
 "settings.launchAtLogin.requiresApproval" = "等待授權。請在「系統設定 › 一般 › 登入項目」中允許 Status Trio。";
+"settings.launchAtLogin.requiresMacOS13" = "需要 macOS 13 或更高版本。";
 "settings.launchAtLogin.openLoginItems" = "打開登入項目設定";
 "settings.launchAtLogin.failure" = "無法更新登入項目，可在「系統設定 › 一般 › 登入項目」中手動管理。";
 "settings.appIconPlacement" = "Status Trio 顯示位置";
