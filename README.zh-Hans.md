@@ -121,9 +121,15 @@ Status Trio 是一个原生 macOS 状态应用，将 Wi-Fi、电池和音量整�
 
 ## 系统要求
 
-- 运行 app 需要 macOS 15 或更高版本
+- 运行正式发布的 app 需要 macOS 15 或更高版本
 - 构建需要带 macOS 26 SDK 的 Swift 6 工具链（Xcode 26 或更高版本）。用更旧的 SDK 构建会静默产出
   Tahoe 之前的弹出面板观感，因此 `scripts/build-app.sh` 在 SDK 低于 26 时会直接失败。
+
+`macos12-personal` 分支是例外。它是为一台 macOS 12 的个人机器做的构建：用 Xcode 14.2
+（Swift 5.7.2、macOS 13.1 SDK）编译，构建时需要带 `STATUS_TRIO_LEGACY_MACOS=1`，不含
+Sparkle，并且为了“能跑起来”放弃了较新系统才有的功能。它不代表公开支持 macOS 12，也不会
+从这里发布版本。构建命令、放弃清单，以及本分支新增的 Intel DDC/CI 显示器音量，见
+[macOS 12 个人分支](docs/macos-12-personal-branch.md)。
 
 ## 从源码运行
 
@@ -202,6 +208,10 @@ Status Trio 通过 macOS 公开框架读取系统状态，不使用 App Sandbox�
 swift test
 ```
 
+在 macOS 12 个人分支上同样的命令可以跑通，但覆盖面更小：工具链还没有 swift-testing 时，
+含有 `import Testing` 的文件会被排除在测试目标之外；测量较新系统渲染结果的断言会记为跳过。
+详见 [macOS 12 个人分支](docs/macos-12-personal-branch.md#test-suite)。
+
 通过测试辅助脚本运行指定的 XCTest：
 
 ```bash
@@ -235,6 +245,7 @@ bash scripts/build-worktree.sh release
 ## 文档
 
 - [已知限制](docs/known-limitations.md)
+- [macOS 12 个人分支](docs/macos-12-personal-branch.md)
 - [GitHub Actions 自动发布](docs/github-actions-release.md)
 - [Status Trio 设计规格](docs/superpowers/specs/2026-09-12-status-trio-design.md)
 - [菜单栏图标 SVG](status-menubar.svg)

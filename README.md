@@ -121,10 +121,17 @@ The same states rendered for a dark menu bar:
 
 ## Requirements
 
-- macOS 15 or later to run the app
+- macOS 15 or later to run the released app
 - Swift 6 toolchain with the macOS 26 SDK (Xcode 26 or later) to build it. Building against an
   older SDK silently produces the pre-Tahoe popover appearance, so `scripts/build-app.sh` fails
   when the SDK is older than 26.
+
+The `macos12-personal` branch is the exception. It is a personal build for one macOS 12
+machine: it compiles with Xcode 14.2 (Swift 5.7.2, macOS 13.1 SDK), builds with
+`STATUS_TRIO_LEGACY_MACOS=1`, ships without Sparkle, and gives up the features that newer
+systems provide in exchange for running at all. It is not public macOS 12 support and is
+never released. See [The macOS 12 personal branch](docs/macos-12-personal-branch.md) for
+its commands, the list of what it costs, and the Intel DDC/CI display volume it adds.
 
 ## Run from source
 
@@ -203,6 +210,11 @@ Run the test suite:
 swift test
 ```
 
+On the macOS 12 personal branch the same command works, but it runs less: the files that
+`import Testing` are excluded while the toolchain predates swift-testing, and assertions
+that measure what a newer system draws report as skipped. See
+[The macOS 12 personal branch](docs/macos-12-personal-branch.md#test-suite).
+
 Run a focused XCTest filter through the helper:
 
 ```bash
@@ -236,6 +248,7 @@ The single-instance lock is scoped by bundle identifier, so differently identifi
 ## Documentation
 
 - [Known limitations](docs/known-limitations.md)
+- [The macOS 12 personal branch](docs/macos-12-personal-branch.md)
 - [Automated GitHub Actions releases](docs/github-actions-release.md)
 - [Status Trio design specification](docs/superpowers/specs/2026-09-12-status-trio-design.md)
 - [Menu bar icon SVG](status-menubar.svg)

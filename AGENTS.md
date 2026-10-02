@@ -38,6 +38,28 @@ Every failed GitHub Actions run must be added to
 [Swift toolchain CI compatibility](docs/swift-ci-compatibility.md), including the
 run ID, failed stage, root cause, fix, and verification result.
 
+## Exception: the macOS 12 Personal Branch
+
+`macos12-personal` is a personal build for one Monterey machine. It is never pushed, never
+dispatched through CI, never released, and never merged back as macOS 12 support, so
+everything above that makes the release workflow the acceptance environment does not apply
+to it:
+
+- Xcode 14.2 (Swift 5.7.2, macOS 13.1 SDK) on that machine is the oracle, not CI.
+- `STATUS_TRIO_LEGACY_MACOS=1` skips the SDK-26 guard deliberately, because shipping the
+  pre-Tahoe appearance beats not shipping at all. Do not remove that escape hatch.
+- An API newer than the SDK is dropped or stubbed and the lost feature documented at the
+  call site, rather than availability-gated with a `#available` branch.
+- A test assertion that measures what a newer system draws skips through
+  `Tests/StatusTrioCoreTests/LegacyMacOSSkip.swift` instead of being deleted, and the
+  files that `import Testing` are excluded from the test target while the manifest
+  compiles with `swift(<5.9)`.
+
+Do not "fix" any of that back onto the mainline rules, and do not open an issue against
+the branch for it. See [The macOS 12 personal branch](docs/macos-12-personal-branch.md)
+for the build commands, the list of sacrificed features, and the Intel DDC/CI display
+volume this branch adds.
+
 ## Swift Toolchain Compatibility Rules
 
 - Do not use `isolated deinit` or enable the `IsolatedDeinit` experimental feature. Use `deinit` with explicit cleanup; use `nonisolated(unsafe)` only for teardown-owned storage and explain why it is safe.
