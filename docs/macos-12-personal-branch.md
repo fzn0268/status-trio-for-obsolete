@@ -1,8 +1,10 @@
 # The macOS 12 personal branch
 
 `macos12-personal` runs Status Trio on one Monterey machine. It is a personal build, not
-a path to public macOS 12 support: it is never pushed, never dispatched through CI, and
-never merged back as a macOS 12 announcement. The public app stays macOS 15+.
+a path to public macOS 12 support: it is backed up to the maintainer's own fork,
+`fzn0268/status-trio-for-obsolete`, and nowhere else — never upstream, never dispatched
+through CI, never released, and never merged back as a macOS 12 announcement. The public
+app stays macOS 15+.
 
 Everything below is what that trade looks like in practice, so the next session does not
 have to rediscover it.
@@ -154,8 +156,12 @@ rebased.
 
 ## Standing constraints for anyone working on this branch
 
-1. Do not push it, do not dispatch the release workflow, and do not cut a release from it.
-   `gh` has no credentials on this machine; those actions belong to the user.
+1. Push only to `fork`, the maintainer's own repository. Never to `origin`, which is the
+   public upstream, and never a CI dispatch or a release from this branch. GitHub's port
+   443 is unreachable directly from this machine, so the proxy is set on the remote rather
+   than globally: `git config remote.fork.proxy http://127.0.0.1:10808`. Reads are
+   anonymous; pushes use the `gh` login, and `gh auth setup-git` is what wires that token
+   into the HTTPS credential helper.
 2. Do not "fix" the branch back onto the CI toolchain. Building with the macOS 26 SDK,
    keeping `#available` coverage of new APIs, and a green `publish=false` preflight are
    mainline requirements; here the local compiler is the oracle.

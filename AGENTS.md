@@ -40,10 +40,10 @@ run ID, failed stage, root cause, fix, and verification result.
 
 ## Exception: the macOS 12 Personal Branch
 
-`macos12-personal` is a personal build for one Monterey machine. It is never pushed, never
-dispatched through CI, never released, and never merged back as macOS 12 support, so
-everything above that makes the release workflow the acceptance environment does not apply
-to it:
+`macos12-personal` is a personal build for one Monterey machine. It is backed up only to
+the maintainer's own fork, never to the public upstream, never dispatched through CI,
+never released, and never merged back as macOS 12 support, so everything above that makes
+the release workflow the acceptance environment does not apply to it:
 
 - Xcode 14.2 (Swift 5.7.2, macOS 13.1 SDK) on that machine is the oracle, not CI.
 - `STATUS_TRIO_LEGACY_MACOS=1` skips the SDK-26 guard deliberately, because shipping the
